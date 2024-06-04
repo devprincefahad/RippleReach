@@ -16,6 +16,10 @@ val quickStandFamily = FontFamily(
     Font(R.font.quicksand_bold, FontWeight.Bold)
 )
 
+val rufinaFamily = FontFamily(
+    Font(R.font.rufina_bold, FontWeight.Bold),
+    Font(R.font.rufina_regular, FontWeight.Normal)
+)
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(

@@ -11,6 +11,9 @@ android {
     namespace = "dev.prince.ripplereach"
     compileSdk = 34
 
+    hilt {
+        enableAggregatingTask = true
+    }
     defaultConfig {
         applicationId = "dev.prince.ripplereach"
         minSdk = 24
@@ -62,6 +65,7 @@ dependencies {
     // Dagger - Hilt
     implementation("com.google.dagger:hilt-android:2.48")
     ksp("com.google.dagger:hilt-android-compiler:2.48")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     // Import the BoM for the Firebase platform
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
