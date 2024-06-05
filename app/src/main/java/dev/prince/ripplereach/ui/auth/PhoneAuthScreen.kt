@@ -46,7 +46,7 @@ import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
 import java.util.concurrent.TimeUnit
 
-@Destination(start = true)
+@Destination
 @Composable
 fun PhoneAuthScreen(
     navigator: DestinationsNavigator,

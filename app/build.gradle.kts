@@ -58,6 +58,11 @@ android {
 
 dependencies {
 
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+
     // Compose Nav Destinations
     implementation("io.github.raamcosta.compose-destinations:core:1.9.52")
     ksp("io.github.raamcosta.compose-destinations:ksp:1.9.52")
@@ -78,6 +83,8 @@ dependencies {
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
+
+    implementation ("androidx.compose.material3:material3:1.2.1")
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.1")
