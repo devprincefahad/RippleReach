@@ -1,0 +1,260 @@
+{
+    "universities": [
+      {
+        "rank": 1,
+        "name": "IIT Madras",
+        "city": "Chennai"
+      },
+      {
+        "rank": 2,
+        "name": "IIT Delhi",
+        "city": "New Delhi"
+      },
+      {
+        "rank": 3,
+        "name": "IIT Bombay",
+        "city": "Mumbai"
+      },
+      {
+        "rank": 4,
+        "name": "IIT Kanpur",
+        "city": "Kanpur"
+      },
+      {
+        "rank": 5,
+        "name": "IIT Kharagpur",
+        "city": "Kharagpur"
+      },
+      {
+        "rank": 6,
+        "name": "IIT Roorkee",
+        "city": "Roorkee"
+      },
+      {
+        "rank": 7,
+        "name": "IIT Guwahati",
+        "city": "Guwahati"
+      },
+      {
+        "rank": 8,
+        "name": "IIT Hyderabad",
+        "city": "Hyderabad"
+      },
+      {
+        "rank": 9,
+        "name": "IIT BHU",
+        "city": "Varanasi"
+      },
+      {
+        "rank": 10,
+        "name": "IIT Indore",
+        "city": "Indore"
+      },
+      {
+        "rank": 11,
+        "name": "NIT Trichy",
+        "city": "Tiruchirappalli"
+      },
+      {
+        "rank": 12,
+        "name": "IIT Ropar",
+        "city": "Rupnagar"
+      },
+      {
+        "rank": 13,
+        "name": "IIT Patna",
+        "city": "Patna"
+      },
+      {
+        "rank": 14,
+        "name": "IIT Gandhinagar",
+        "city": "Gandhinagar"
+      },
+      {
+        "rank": 15,
+        "name": "IIT Jodhpur",
+        "city": "Jodhpur"
+      },
+      {
+        "rank": 16,
+        "name": "IIT Varanasi (BHU)",
+        "city": "Varanasi"
+      },
+      {
+        "rank": 17,
+        "name": "NIT Surathkal",
+        "city": "Surathkal"
+      },
+      {
+        "rank": 18,
+        "name": "IIT Dhanbad",
+        "city": "Dhanbad"
+      },
+      {
+        "rank": 19,
+        "name": "NIT Rourkela",
+        "city": "Rourkela"
+      },
+      {
+        "rank": 20,
+        "name": "IIIT Hyderabad",
+        "city": "Hyderabad"
+      },
+      {
+        "rank": 21,
+        "name": "Delhi Technological University",
+        "city": "New Delhi"
+      },
+      {
+        "rank": 22,
+        "name": "Anna University",
+        "city": "Chennai"
+      },
+      {
+        "rank": 23,
+        "name": "Vellore Institute of Technology",
+        "city": "Vellore"
+      },
+      {
+        "rank": 24,
+        "name": "BITS Pilani",
+        "city": "Pilani"
+      },
+      {
+        "rank": 25,
+        "name": "NIT Warangal",
+        "city": "Warangal"
+      },
+      {
+        "rank": 26,
+        "name": "Jadavpur University",
+        "city": "Kolkata"
+      },
+      {
+        "rank": 27,
+        "name": "Amrita School of Engineering",
+        "city": "Coimbatore"
+      },
+      {
+        "rank": 28,
+        "name": "Institute of Chemical Technology",
+        "city": "Mumbai"
+      },
+      {
+        "rank": 29,
+        "name": "NIT Calicut",
+        "city": "Kozhikode"
+      },
+      {
+        "rank": 30,
+        "name": "NIT Kurukshetra",
+        "city": "Kurukshetra"
+      },
+      {
+        "rank": 31,
+        "name": "Manipal Institute of Technology",
+        "city": "Manipal"
+      },
+      {
+        "rank": 32,
+        "name": "Thapar Institute of Engineering and Technology",
+        "city": "Patiala"
+      },
+      {
+        "rank": 33,
+        "name": "Jamia Millia Islamia",
+        "city": "New Delhi"
+      },
+      {
+        "rank": 34,
+        "name": "National Institute of Industrial Engineering",
+        "city": "Mumbai"
+      },
+      {
+        "rank": 35,
+        "name": "Visvesvaraya National Institute of Technology",
+        "city": "Nagpur"
+      },
+      {
+        "rank": 36,
+        "name": "SRM Institute of Science and Technology",
+        "city": "Chennai"
+      },
+      {
+        "rank": 37,
+        "name": "PSG College of Technology",
+        "city": "Coimbatore"
+      },
+      {
+        "rank": 38,
+        "name": "College of Engineering",
+        "city": "Pune"
+      },
+      {
+        "rank": 39,
+        "name": "Birla Institute of Technology",
+        "city": "Mesra"
+      },
+      {
+        "rank": 40,
+        "name": "NIT Durgapur",
+        "city": "Durgapur"
+      },
+      {
+        "rank": 41,
+        "name": "BMS College of Engineering",
+        "city": "Bangalore"
+      },
+      {
+        "rank": 42,
+        "name": "Shiv Nadar University",
+        "city": "Greater Noida"
+      },
+      {
+        "rank": 43,
+        "name": "Kalinga Institute of Industrial Technology",
+        "city": "Bhubaneswar"
+      },
+      {
+        "rank": 44,
+        "name": "Dayananda Sagar College of Engineering",
+        "city": "Bangalore"
+      },
+      {
+        "rank": 45,
+        "name": "NIT Silchar",
+        "city": "Silchar"
+      },
+      {
+        "rank": 46,
+        "name": "NIT Raipur",
+        "city": "Raipur"
+      },
+      {
+        "rank": 47,
+        "name": "MIT World Peace University",
+        "city": "Pune"
+      },
+      {
+        "rank": 48,
+        "name": "NIT Hamirpur",
+        "city": "Hamirpur"
+      },
+      {
+        "rank": 49,
+        "name": "SSN College of Engineering",
+        "city": "Chennai"
+      },
+      {
+        "rank": 50,
+        "name": "Indian Institute of Space Science and Technology",
+        "city": "Thiruvananthapuram"
+      },
+      {
+        "rank": 51,
+        "name": "Other",
+        "city": "Other"
+      }
+    ]
+  }
+  

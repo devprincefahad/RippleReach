@@ -1,14 +1,5 @@
-package dev.prince.ripplereach.util
-
-import android.app.Activity
-import android.view.WindowManager
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.platform.LocalContext
-
-const val BASE_URL = "https://ripplereach-0-0-1-snapshot.onrender.com/api/"
-
-val professions = listOf(
+{
+  "professions": [
     "Software Engineer/Developer",
     "Product Manager",
     "Data Scientist",
@@ -49,6 +40,9 @@ val professions = listOf(
     "Hardware Engineer",
     "Embedded Systems Engineer",
     "IT Support Specialist",
+    "Hiring Manager",
+    "Founder",
+    "Co-Founder",
     "Solutions Architect",
     "Infrastructure Engineer",
     "IT Compliance Manager",
@@ -56,21 +50,8 @@ val professions = listOf(
     "Information Security Analyst",
     "Telecommunications Specialist",
     "Video Game Designer",
-    "VR/AR Developer",
+    "Virtual Reality/Augmented Reality Developer",
     "Robotics Engineer",
     "Help Desk Technician"
-)
-
-
-@Composable
-fun SetSoftInputMode(mode: Int) {
-    val context = LocalContext.current
-    val activity = context as? Activity
-    DisposableEffect(activity) {
-        val originalMode = activity?.window?.attributes?.softInputMode
-        activity?.window?.setSoftInputMode(mode)
-        onDispose {
-            activity?.window?.setSoftInputMode(originalMode ?: WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-        }
-    }
+  ]
 }
