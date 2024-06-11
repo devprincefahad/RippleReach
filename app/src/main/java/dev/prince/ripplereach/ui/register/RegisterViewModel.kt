@@ -1,6 +1,12 @@
-package dev.prince.ripplereach.ui.auth
+package dev.prince.ripplereach.ui.register
 
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -18,19 +24,30 @@ import java.lang.reflect.Type
 import javax.inject.Inject
 
 @HiltViewModel
-class PhoneAuthViewModel @Inject constructor(
+class RegisterViewModel @Inject constructor(
     private val api: ApiService
 ) : ViewModel() {
+
+    val auth = FirebaseAuth.getInstance()
+
+    var phoneNumber by mutableStateOf("")
+    var verificationId by mutableStateOf("")
+    var otp by mutableStateOf("")
+
+    var selectedUsername by mutableStateOf("")
+    var selectedOption by mutableIntStateOf(-1)
+
+    var profession by mutableStateOf("")
+
+    var companyName  by mutableStateOf("")
+    var expanded by mutableStateOf(false)
 
     private val _usernames = MutableStateFlow<List<String>>(emptyList())
     val usernames: StateFlow<List<String>> = _usernames
 
-    val auth = FirebaseAuth.getInstance()
-
     init {
-        //fetchUsernames()
+        fetchUsernames()
     }
-
 
     fun fetchUsernames() {
         viewModelScope.launch {
@@ -39,14 +56,16 @@ class PhoneAuthViewModel @Inject constructor(
     }
 
     fun getCompanies(context: Context): List<String> {
-        val jsonFile = context.resources.openRawResource(R.raw.companies).bufferedReader().use { it.readText() }
+        val jsonFile = context.resources.openRawResource(R.raw.companies).bufferedReader()
+            .use { it.readText() }
         val gson = Gson()
         val companiesList = gson.fromJson(jsonFile, CompanyList::class.java)
         return companiesList.companies
     }
 
     fun getUniversities(context: Context): List<String> {
-        val jsonFile = context.resources.openRawResource(R.raw.universities).bufferedReader().use { it.readText() }
+        val jsonFile = context.resources.openRawResource(R.raw.universities).bufferedReader()
+            .use { it.readText() }
         val gson = Gson()
         val universityListType: Type = object : TypeToken<UniversityList>() {}.type
         val universityList: UniversityList = gson.fromJson(jsonFile, universityListType)

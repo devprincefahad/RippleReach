@@ -1,7 +1,8 @@
-package dev.prince.ripplereach.ui.auth
+package dev.prince.ripplereach.ui.register
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +18,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -30,11 +30,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import dev.prince.ripplereach.ui.destinations.ChooseNameScreenDestination
 import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
@@ -42,13 +41,13 @@ import dev.prince.ripplereach.ui.theme.rufinaFamily
 @Destination
 @Composable
 fun OTPVerifyScreen(
-    viewModel: PhoneAuthViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator,
-    phoneNumber: String,
-    verificationId: String
+    navigator: DestinationsNavigator
 ) {
     val context = LocalContext.current
-    val otp = remember { mutableStateOf("") }
+
+    val activity = LocalContext.current as ComponentActivity
+
+    val viewModel: RegisterViewModel = hiltViewModel(activity)
 
     Column(
         modifier = Modifier
@@ -74,7 +73,7 @@ fun OTPVerifyScreen(
         Text(
             modifier = Modifier
                 .padding(top = 16.dp),
-            text = "to +91 $phoneNumber",
+            text = "to +91 ${viewModel.phoneNumber}",
             color = Color.Gray,
             style = TextStyle(
                 fontSize = 18.sp,
@@ -84,10 +83,10 @@ fun OTPVerifyScreen(
         )
 
         OutlinedTextField(
-            value = otp.value,
+            value = viewModel.otp,
             onValueChange = {
                 if (it.length <= 6) {
-                    otp.value = it
+                    viewModel.otp = it
                 } else {
                     Toast.makeText(context, "6 digit otp", Toast.LENGTH_SHORT).show()
                 }
@@ -155,19 +154,20 @@ fun OTPVerifyScreen(
             onClick = {
 //                if (viewModel.otp.isNotEmpty() && viewModel.storedVerificationId.isNotEmpty()) {
                 val credential = PhoneAuthProvider.getCredential(
-                    verificationId,
-                    otp.value
+                    viewModel.verificationId,
+                    viewModel.otp
                 )
 
                 viewModel.auth.signInWithCredential(credential)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             Toast.makeText(context, "success", Toast.LENGTH_SHORT).show()
-                            Log.d("auth-check", "verf otp from viewmodel ${otp.value}")
+                            Log.d("auth-check", "verf otp from viewmodel ${viewModel.otp}")
                             Log.d(
                                 "auth-check",
-                                "verf id from viewmodel $verificationId"
+                                "verf id from viewmodel ${viewModel.verificationId}"
                             )
+                            navigator.navigate(ChooseNameScreenDestination())
                         } else {
                             Toast.makeText(context, "failed", Toast.LENGTH_SHORT).show()
                         }

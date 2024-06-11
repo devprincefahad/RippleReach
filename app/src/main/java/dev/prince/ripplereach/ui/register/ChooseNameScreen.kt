@@ -1,6 +1,7 @@
-package dev.prince.ripplereach.ui.auth
+package dev.prince.ripplereach.ui.register
 
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,8 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
@@ -39,7 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.prince.ripplereach.R
-import dev.prince.ripplereach.ui.auth.destinations.ChooseWorkPlaceDestination
+import dev.prince.ripplereach.ui.destinations.ChooseWorkPlaceDestination
 import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
@@ -47,11 +46,15 @@ import dev.prince.ripplereach.ui.theme.rufinaFamily
 @Destination
 @Composable
 fun ChooseNameScreen(
-    navigator: DestinationsNavigator,
-    viewModel: PhoneAuthViewModel = hiltViewModel()
+    navigator: DestinationsNavigator
 ) {
 
     val context = LocalContext.current
+
+    val activity = LocalContext.current as ComponentActivity
+
+    val viewModel: RegisterViewModel = hiltViewModel(activity)
+
     val userNames by viewModel.usernames.collectAsState()
 
     Column(
@@ -61,9 +64,6 @@ fun ChooseNameScreen(
             .fillMaxSize()
             .padding(all = 16.dp)
     ) {
-
-        var selectedOption by remember { mutableStateOf(-1) }
-        val isContinueButtonEnabled = selectedOption != -1
 
         Text(
             modifier = Modifier
@@ -110,9 +110,10 @@ fun ChooseNameScreen(
                 userNames.take(3).forEachIndexed { index, username ->
                     RadioButtonOption(
                         text = username,
-                        isSelected = selectedOption == index,
+                        isSelected = viewModel.selectedOption == index,
                         onSelect = {
-                            selectedOption = index
+                            viewModel.selectedUsername = username
+                            viewModel.selectedOption = index
                         }
                     )
                 }
@@ -137,7 +138,7 @@ fun ChooseNameScreen(
             modifier = Modifier
                 .padding(top = 16.dp)
                 .clickable {
-                    selectedOption = -1
+                    viewModel.selectedOption = -1
                     viewModel.fetchUsernames()
                 }
         ) {
@@ -169,11 +170,11 @@ fun ChooseNameScreen(
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
             onClick = {
-                if (selectedOption == -1) {
+                if (viewModel.selectedOption == -1) {
                     Toast.makeText(context, "Please select a username", Toast.LENGTH_SHORT).show()
                 } else {
                     navigator.navigate(
-                        ChooseWorkPlaceDestination
+                        ChooseWorkPlaceDestination()
                     )
                 }
             },

@@ -1,4 +1,4 @@
-package dev.prince.ripplereach.ui.auth
+package dev.prince.ripplereach.ui.register
 
 import android.view.WindowManager
 import androidx.compose.foundation.background
@@ -35,19 +35,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.prince.ripplereach.R
-import dev.prince.ripplereach.ui.destinations.ChooseProfessionDestination
-import dev.prince.ripplereach.ui.destinations.ChooseUniversityDestination
 import dev.prince.ripplereach.ui.destinations.ChooseWorkPlaceDestination
 import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
 import dev.prince.ripplereach.util.SetSoftInputMode
 
-@Destination(start = true)
+@Destination
 @Composable
 fun ChooseUniversity(
     navigator: DestinationsNavigator,
-    viewModel: PhoneAuthViewModel = hiltViewModel()
+    viewModel: RegisterViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
@@ -136,7 +134,15 @@ fun ChooseUniversity(
                 .fillMaxWidth()
         ) {
             filteredUniversities.forEachIndexed { index, item ->
-                SearchItemRow(navigator, item) { clickedUniversity ->
+                SearchItemRow(
+                    navigator =  navigator,
+                    professionItem = "",
+                    userName = viewModel.selectedUsername,
+                    phoneNumber = viewModel.phoneNumber,
+                    verificationId = viewModel.verificationId,
+                    companyName = "",
+                    universityName = university.value
+                ) { clickedUniversity ->
                     university.value = clickedUniversity
                 }
                 if (index < filteredUniversities.size - 1) {
@@ -154,7 +160,9 @@ fun ChooseUniversity(
                 .align(Alignment.CenterHorizontally)
                 .padding(top = 16.dp)
                 .clickable {
-                    navigator.navigate(ChooseWorkPlaceDestination)
+                    navigator.navigate(
+                        ChooseWorkPlaceDestination()
+                    )
                 },
             text = "I'm a Professional",
             color = Orange,

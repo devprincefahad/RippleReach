@@ -1,6 +1,7 @@
-package dev.prince.ripplereach.ui.auth
+package dev.prince.ripplereach.ui.register
 
 import android.view.WindowManager
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.prince.ripplereach.R
@@ -50,13 +52,16 @@ fun ChooseProfession(
 ) {
 
     val context = LocalContext.current
-    val profession = remember { mutableStateOf("") }
+
+    val activity = LocalContext.current as ComponentActivity
+
+    val viewModel: RegisterViewModel = hiltViewModel(activity)
 
     SetSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
 
-    val filteredProfessions = remember(profession.value) {
+    val filteredProfessions = remember(viewModel.profession) {
         professions.filter {
-            it.contains(profession.value, ignoreCase = true)
+            it.contains(viewModel.profession, ignoreCase = true)
         }
     }
 
@@ -76,10 +81,10 @@ fun ChooseProfession(
             )
         )
         OutlinedTextField(
-            value = profession.value,
+            value = viewModel.profession,
             onValueChange = {
                 if (it.length <= 40) {
-                    profession.value = it
+                    viewModel.profession = it
                 }
             },
             placeholder = {
@@ -126,8 +131,16 @@ fun ChooseProfession(
                 .fillMaxWidth()
         ) {
             filteredProfessions.forEachIndexed { index, item ->
-                SearchItemRow(navigator, item) { clickedProfession ->
-                    profession.value = clickedProfession
+                SearchItemRow(
+                    navigator = navigator,
+                    professionItem = item,
+                    userName = viewModel.selectedUsername,
+                    phoneNumber = viewModel.phoneNumber,
+                    verificationId = viewModel.verificationId,
+                    companyName = viewModel.companyName,
+                    universityName = ""
+                ) { clickedProfession ->
+                    viewModel.profession = clickedProfession
                 }
                 if (index < filteredProfessions.size - 1) {
                     HorizontalDivider(
@@ -144,7 +157,9 @@ fun ChooseProfession(
                 .align(Alignment.CenterHorizontally)
                 .padding(top = 16.dp)
                 .clickable {
-                    navigator.navigate(ChooseUniversityDestination)
+                    navigator.navigate(
+                        ChooseUniversityDestination()
+                    )
                 },
             text = "I'm a Student",
             color = Orange,
@@ -161,20 +176,34 @@ fun ChooseProfession(
 fun SearchItemRow(
     navigator: DestinationsNavigator,
     professionItem: String,
+    userName: String,
+    phoneNumber: String,
+    verificationId: String,
+    companyName: String,
+    universityName: String,
     onItemClick: (String) -> Unit
 ) {
     Row(
         modifier = Modifier
             .clickable {
                 onItemClick(professionItem)
-                navigator.navigate(HomeScreenDestination)
+                navigator.navigate(
+                    HomeScreenDestination(
+                        userName,
+                        phoneNumber,
+                        verificationId,
+                        companyName,
+                        professionItem,
+                        universityName
+                    )
+                )
             }
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = professionItem,
+            text = professionItem!!,
             style = TextStyle(
                 color = Color.White,
                 fontSize = 18.sp,

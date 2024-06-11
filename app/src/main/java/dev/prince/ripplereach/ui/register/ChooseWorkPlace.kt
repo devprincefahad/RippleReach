@@ -1,23 +1,20 @@
-package dev.prince.ripplereach.ui.auth
+package dev.prince.ripplereach.ui.register
 
 import android.app.Activity
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,19 +22,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,42 +48,36 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.prince.ripplereach.R
+import dev.prince.ripplereach.ui.destinations.ChooseProfessionDestination
+import dev.prince.ripplereach.ui.destinations.ChooseUniversityDestination
 import dev.prince.ripplereach.ui.theme.Orange
-import dev.prince.ripplereach.ui.auth.destinations.ChooseProfessionDestination
-import dev.prince.ripplereach.ui.auth.destinations.ChooseUniversityDestination
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
+import dev.prince.ripplereach.util.SetSoftInputMode
 
-fun Activity.setSoftInputMode(mode: Int) {
-    window.setSoftInputMode(mode)
-}
-
-@Destination(start = true)
+@Destination
 @Composable
 fun ChooseWorkPlace(
-    navigator: DestinationsNavigator,
-    viewModel: PhoneAuthViewModel = hiltViewModel()
+    navigator: DestinationsNavigator
 ) {
 
     val context = LocalContext.current as Activity
+
+    val activity = LocalContext.current as ComponentActivity
+
+    val viewModel: RegisterViewModel = hiltViewModel(activity)
 
     val density = LocalDensity.current
 
     val screenHeightPx = with(density) { context.resources.displayMetrics.heightPixels.toDp() }
 
-    DisposableEffect(Unit) {
-        context.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        onDispose {
-            context.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
-        }
-    }
+    SetSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
 
     val companies = remember { mutableStateListOf<String>() }
-    val companyName = remember { mutableStateOf("") }
-    val expanded = remember { mutableStateOf(false) }
-    val filteredCompanies = remember(companyName.value) {
+
+    val filteredCompanies = remember(viewModel.companyName) {
         companies.filter {
-            it.contains(companyName.value, ignoreCase = true)
+            it.contains(viewModel.companyName, ignoreCase = true)
         }
     }
     LaunchedEffect(Unit) {
@@ -159,8 +145,7 @@ fun ChooseWorkPlace(
 //            contentDescription = null,
 //        )
 
-        SearchCompanies(companyName, filteredCompanies, expanded, screenHeightPx)
-
+        SearchCompanies(filteredCompanies = filteredCompanies, screenHeightPx = screenHeightPx)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -172,7 +157,9 @@ fun ChooseWorkPlace(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .clickable {
-                        navigator.navigate(ChooseUniversityDestination)
+                        navigator.navigate(
+                            ChooseUniversityDestination()
+                        )
                     },
                 text = "I'm a Student",
                 color = Orange,
@@ -187,12 +174,12 @@ fun ChooseWorkPlace(
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
                 onClick = {
-                    if (companyName.value.isEmpty()) {
+                    if (viewModel.companyName.isEmpty()) {
                         Toast.makeText(context, "Please select a company", Toast.LENGTH_SHORT)
                             .show()
                     } else {
                         navigator.navigate(
-                            ChooseProfessionDestination
+                            ChooseProfessionDestination()
                         )
                     }
                 },
@@ -210,25 +197,24 @@ fun ChooseWorkPlace(
 
     }
     BackHandler {
-       // expanded.value = false
+        // expanded.value = false
     }
 }
 
 @Composable
 fun SearchCompanies(
-    companyName: MutableState<String>,
+    viewModel: RegisterViewModel = hiltViewModel(),
     filteredCompanies: List<String>,
-    expanded: MutableState<Boolean>,
     screenHeightPx: Dp
 ) {
 
 
     OutlinedTextField(
-        value = companyName.value,
+        value = viewModel.companyName,
         onValueChange = {
             if (it.length <= 40) {
-                companyName.value = it
-                expanded.value = true
+                viewModel.companyName = it
+                viewModel.expanded = true
             }
         },
         placeholder = {
@@ -260,7 +246,7 @@ fun SearchCompanies(
         leadingIcon = {
             Icon(
                 painter = painterResource(
-                    id = R.drawable.icon_search
+                    id = R.drawable.ic_work
                 ),
                 tint = Color.Gray,
                 contentDescription = null
@@ -268,7 +254,7 @@ fun SearchCompanies(
         }
     )
 
-    if (expanded.value && filteredCompanies.isNotEmpty()) {
+    if (viewModel.expanded && filteredCompanies.isNotEmpty()) {
         LazyColumn(
             modifier = Modifier
                 .background(Color.DarkGray)
@@ -279,8 +265,8 @@ fun SearchCompanies(
             items(filteredCompanies) { company ->
                 DropdownMenuItem(
                     onClick = {
-                        companyName.value = company
-                        expanded.value = false
+                        viewModel.companyName = company
+                        viewModel.expanded = false
                     },
                     text = {
                         Text(
@@ -301,7 +287,7 @@ fun SearchCompanies(
             }
         }
     } else {
-        expanded.value = false
+        viewModel.expanded = false
     }
 }
 

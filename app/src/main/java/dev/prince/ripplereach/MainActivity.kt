@@ -10,8 +10,7 @@ import androidx.compose.ui.Modifier
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import dagger.hilt.android.AndroidEntryPoint
-import dev.prince.ripplereach.ui.auth.NavGraphs
-import dev.prince.ripplereach.ui.auth.PhoneAuthScreen
+import dev.prince.ripplereach.ui.NavGraphs
 import dev.prince.ripplereach.ui.theme.RippleReachTheme
 
 @AndroidEntryPoint
