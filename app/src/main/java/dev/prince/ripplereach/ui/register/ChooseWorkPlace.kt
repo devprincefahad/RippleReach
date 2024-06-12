@@ -75,13 +75,19 @@ fun ChooseWorkPlace(
 
     val companies = remember { mutableStateListOf<String>() }
 
-    val filteredCompanies = remember(viewModel.companyName) {
-        companies.filter {
-            it.contains(viewModel.companyName, ignoreCase = true)
-        }
-    }
+    val filteredCompanies = remember { mutableStateListOf<String>() }
+
     LaunchedEffect(Unit) {
-        companies.addAll(viewModel.getCompanies(context))
+        companies.addAll(viewModel.getCompaniesFromJson(context))
+    }
+
+    LaunchedEffect(viewModel.companyName) {
+        filteredCompanies.clear()
+        filteredCompanies.addAll(
+            companies.filter {
+                it.contains(viewModel.companyName, ignoreCase = true)
+            }
+        )
     }
 
     Column(
@@ -145,7 +151,11 @@ fun ChooseWorkPlace(
 //            contentDescription = null,
 //        )
 
-        SearchCompanies(filteredCompanies = filteredCompanies, screenHeightPx = screenHeightPx)
+        SearchCompanies(
+            filteredCompanies = filteredCompanies,
+            screenHeightPx = screenHeightPx,
+            activity = activity
+        )
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -203,11 +213,12 @@ fun ChooseWorkPlace(
 
 @Composable
 fun SearchCompanies(
-    viewModel: RegisterViewModel = hiltViewModel(),
     filteredCompanies: List<String>,
-    screenHeightPx: Dp
+    screenHeightPx: Dp,
+    activity: ComponentActivity,
 ) {
 
+    val viewModel: RegisterViewModel = hiltViewModel(activity)
 
     OutlinedTextField(
         value = viewModel.companyName,
@@ -260,7 +271,6 @@ fun SearchCompanies(
                 .background(Color.DarkGray)
                 .fillMaxWidth()
                 .heightIn(0.dp, screenHeightPx * 0.4f)
-//                .requiredSizeIn(maxHeight = 320.dp)
         ) {
             items(filteredCompanies) { company ->
                 DropdownMenuItem(
