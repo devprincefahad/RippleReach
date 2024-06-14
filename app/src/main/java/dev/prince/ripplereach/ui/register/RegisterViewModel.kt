@@ -35,6 +35,7 @@ class RegisterViewModel @Inject constructor(
 
     var phoneNumber by mutableStateOf("")
     var verificationId by mutableStateOf("")
+    var idToken by mutableStateOf("")
     var otp by mutableStateOf("")
 
     var selectedUsername by mutableStateOf("")
@@ -53,15 +54,6 @@ class RegisterViewModel @Inject constructor(
     init {
         fetchUsernames()
     }
-
-    private val requestBody = RegisterRequestBody(
-        idToken = verificationId,
-        phone = phoneNumber,
-        username = selectedUsername,
-        company = companyName,
-        university = university,
-        profession = profession
-    )
 
     fun fetchUsernames() {
         viewModelScope.launch {
@@ -85,6 +77,17 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun registerUser() {
+
+        val requestBody = RegisterRequestBody(
+            idToken = idToken,
+            phone = phoneNumber,
+            username = selectedUsername,
+            company = (companyName.ifEmpty { null }),
+            university = (university.ifEmpty { null }),
+            profession = (profession.ifEmpty { null })
+        )
+        Log.d("api-block", "from viewwmodel:- ${requestBody.company} ${requestBody.university} ${requestBody.profession}")
+
         viewModelScope.launch {
             try {
                 val response = api.register(requestBody = requestBody)
@@ -92,6 +95,7 @@ class RegisterViewModel @Inject constructor(
             } catch (e: Exception) {
                 Toast.makeText(context, "Registration failed: ${e.message}", Toast.LENGTH_SHORT)
                     .show()
+                Log.d("api-block", "${e.stackTrace}")
             }
         }
     }

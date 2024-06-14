@@ -5,10 +5,10 @@ import com.google.gson.annotations.SerializedName
 data class CompanyList(val companies: List<String>)
 
 data class UniversityList(
-    @SerializedName("universities") val universities: List<University>?
+    @SerializedName("universities") val universities: List<UniversityData>?
 )
 
-data class University(
+data class UniversityData(
     val rank: Int,
     val name: String,
     val city: String

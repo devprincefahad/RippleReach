@@ -5,12 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -21,7 +18,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,8 +33,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.prince.ripplereach.R
+import dev.prince.ripplereach.ui.components.SearchItemRow
 import dev.prince.ripplereach.ui.destinations.ChooseUniversityDestination
-import dev.prince.ripplereach.ui.destinations.HomeScreenDestination
 import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
@@ -53,7 +49,7 @@ fun ChooseProfession(
 
     val context = LocalContext.current
 
-    val activity = LocalContext.current as ComponentActivity
+    val activity = context as ComponentActivity
 
     val viewModel: RegisterViewModel = hiltViewModel(activity)
 
@@ -133,12 +129,11 @@ fun ChooseProfession(
             filteredProfessions.forEachIndexed { index, item ->
                 SearchItemRow(
                     navigator = navigator,
-                    professionItem = item,
+                    profession = item,
                     userName = viewModel.selectedUsername,
                     phoneNumber = viewModel.phoneNumber,
-                    verificationId = viewModel.verificationId,
                     companyName = viewModel.companyName,
-                    universityName = ""
+                    universityName = null
                 ) { clickedProfession ->
                     viewModel.profession = clickedProfession
                 }
@@ -168,57 +163,6 @@ fun ChooseProfession(
                 fontWeight = FontWeight.Medium,
                 fontFamily = quickStandFamily
             )
-        )
-    }
-}
-
-@Composable
-fun SearchItemRow(
-    navigator: DestinationsNavigator,
-    professionItem: String,
-    userName: String,
-    phoneNumber: String,
-    verificationId: String,
-    companyName: String,
-    universityName: String,
-    onItemClick: (String) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .clickable {
-                onItemClick(professionItem)
-                navigator.navigate(
-                    HomeScreenDestination(
-                        userName,
-                        phoneNumber,
-                        verificationId,
-                        companyName,
-                        professionItem,
-                        universityName
-                    )
-                )
-            }
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = professionItem!!,
-            style = TextStyle(
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = quickStandFamily
-            )
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Icon(
-            modifier = Modifier.size(14.dp),
-            painter = painterResource(
-                R.drawable.ic_arrow_right
-            ),
-            tint = Color.White,
-            contentDescription = null
         )
     }
 }

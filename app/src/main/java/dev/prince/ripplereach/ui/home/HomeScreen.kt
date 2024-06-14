@@ -17,7 +17,7 @@ fun HomeScreen(
     professionItem: String,
     userName: String,
     phoneNumber: String,
-    verificationId: String,
+    idToken: String,
     companyName: String,
     universityName: String,
 ) {
@@ -26,6 +26,9 @@ fun HomeScreen(
 
     val viewModel: HomeViewModel = hiltViewModel(activity)
 
+    val company = companyName.ifEmpty { null }
+    val university = universityName.ifEmpty { null }
+
     Column {
 
         Text(
@@ -33,7 +36,7 @@ fun HomeScreen(
             fontSize = 26.sp
         )
 
-        Log.d("data-output","$professionItem $userName $phoneNumber $verificationId $companyName $universityName")
+        Log.d("data-output","$professionItem $userName $phoneNumber $idToken $company $university")
 
     }
 

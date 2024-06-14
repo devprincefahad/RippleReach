@@ -300,17 +300,3 @@ fun SearchCompanies(
         viewModel.expanded = false
     }
 }
-
-@Composable
-fun TextFieldSeparator(
-    height: Int
-) {
-    Box(
-        modifier = Modifier
-            .padding(end = 12.dp)
-            .height(height.dp)
-            .width(1.dp)
-            .background(color = Color.LightGray),
-        contentAlignment = Alignment.Center
-    ) {}
-}

@@ -173,10 +173,7 @@ fun PhoneAuthScreen(
 
                                 Log.d("auth-check", "storedVerificationId = $p0")
                                 navigator.navigate(
-                                    OTPVerifyScreenDestination(
-//                                        viewModel.phoneNumber,
-//                                        viewModel.verificationId
-                                    )
+                                    OTPVerifyScreenDestination()
                                 )
                             }
 

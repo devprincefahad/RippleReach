@@ -1,6 +1,7 @@
 package dev.prince.ripplereach.ui.register
 
 import android.view.WindowManager
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.prince.ripplereach.R
+import dev.prince.ripplereach.ui.components.SearchItemRow
 import dev.prince.ripplereach.ui.destinations.ChooseWorkPlaceDestination
 import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
@@ -44,13 +45,16 @@ import dev.prince.ripplereach.util.SetSoftInputMode
 @Destination
 @Composable
 fun ChooseUniversity(
-    navigator: DestinationsNavigator,
-    viewModel: RegisterViewModel = hiltViewModel()
+    navigator: DestinationsNavigator
 ) {
 
     val context = LocalContext.current
+
+    val activity = context as ComponentActivity
+
+    val viewModel: RegisterViewModel = hiltViewModel(activity)
+
     val universityList = remember { mutableStateListOf<String>() }
-    val university = remember { mutableStateOf("") }
 
     SetSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
 
@@ -58,13 +62,9 @@ fun ChooseUniversity(
         universityList.addAll(viewModel.getUniversities(context))
     }
 
-    val filteredUniversities = remember(universityList, university.value) {
-        if (university.value.isEmpty()) {
-            universityList
-        } else {
-            universityList.filter {
-                it.contains(university.value, ignoreCase = true)
-            }
+    val filteredUniversities = remember(universityList, viewModel.university) {
+        universityList.filter {
+            it.contains(viewModel.university, ignoreCase = true)
         }
     }
 
@@ -84,10 +84,10 @@ fun ChooseUniversity(
             )
         )
         OutlinedTextField(
-            value = university.value,
+            value = viewModel.university,
             onValueChange = {
                 if (it.length <= 40) {
-                    university.value = it
+                    viewModel.university = it
                 }
             },
             placeholder = {
@@ -135,15 +135,14 @@ fun ChooseUniversity(
         ) {
             filteredUniversities.forEachIndexed { index, item ->
                 SearchItemRow(
-                    navigator =  navigator,
-                    professionItem = "",
+                    navigator = navigator,
+                    profession = null,
                     userName = viewModel.selectedUsername,
                     phoneNumber = viewModel.phoneNumber,
-                    verificationId = viewModel.verificationId,
-                    companyName = "",
-                    universityName = university.value
+                    companyName = null,
+                    universityName = item
                 ) { clickedUniversity ->
-                    university.value = clickedUniversity
+                    viewModel.university = clickedUniversity
                 }
                 if (index < filteredUniversities.size - 1) {
                     HorizontalDivider(
