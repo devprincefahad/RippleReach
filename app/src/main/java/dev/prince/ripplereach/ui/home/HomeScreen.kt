@@ -9,35 +9,37 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import dev.prince.ripplereach.data.ResponseData
 import dev.prince.ripplereach.ui.register.RegisterViewModel
 
 @Destination
 @Composable
 fun HomeScreen(
-    professionItem: String,
-    userName: String,
-    phoneNumber: String,
-    idToken: String,
-    companyName: String,
-    universityName: String,
+//    professionItem: String,
+//    userName: String,
+//    phoneNumber: String,
+//    idToken: String,
+//    companyName: String,
+//    universityName: String,
+//    responseData: ResponseData
 ) {
 
     val activity = LocalContext.current as ComponentActivity
 
     val viewModel: HomeViewModel = hiltViewModel(activity)
 
-    val company = companyName.ifEmpty { null }
-    val university = universityName.ifEmpty { null }
+//    val company = companyName.ifEmpty { null }
+//    val university = universityName.ifEmpty { null }
+//
+//    Column {
+//
+//        Text(
+//            text = "Home screen",
+//            fontSize = 26.sp
+//        )
+//
+//        Log.d("data-output","$professionItem $userName $phoneNumber $idToken $company $university")
 
-    Column {
-
-        Text(
-            text = "Home screen",
-            fontSize = 26.sp
-        )
-
-        Log.d("data-output","$professionItem $userName $phoneNumber $idToken $company $university")
-
-    }
+//    }
 
 }

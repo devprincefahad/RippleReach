@@ -1,10 +1,12 @@
 package dev.prince.ripplereach.data
 
-import java.util.Date
+import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Auth(
     val token: String,
     val refreshToken: String,
-    val expiresAt: Date,
+    val expiresAt: String,
     val username: String
 )

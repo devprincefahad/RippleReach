@@ -5,6 +5,8 @@ import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 const val BASE_URL = "https://ripplereach-0-0-1-snapshot.onrender.com/api/"
 
@@ -74,3 +76,5 @@ fun SetSoftInputMode(mode: Int) {
         }
     }
 }
+
+fun <T> oneShotFlow() = MutableSharedFlow<T>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)

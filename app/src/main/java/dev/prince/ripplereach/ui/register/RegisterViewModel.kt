@@ -3,27 +3,45 @@ package dev.prince.ripplereach.ui.register
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.prince.ripplereach.R
 import dev.prince.ripplereach.data.CompanyList
+import dev.prince.ripplereach.data.LoginRequestBody
 import dev.prince.ripplereach.data.RegisterRequestBody
+import dev.prince.ripplereach.data.ResponseData
 import dev.prince.ripplereach.data.UniversityList
 import dev.prince.ripplereach.network.ApiService
+import dev.prince.ripplereach.ui.destinations.ChooseNameScreenDestination
+import dev.prince.ripplereach.ui.destinations.OTPVerifyScreenDestination
+import dev.prince.ripplereach.util.Resource
+import dev.prince.ripplereach.util.oneShotFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import java.lang.reflect.Type
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+
+private const val TAG = "RegisterViewModel"
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
@@ -31,25 +49,29 @@ class RegisterViewModel @Inject constructor(
     private val api: ApiService
 ) : ViewModel() {
 
-    val auth = FirebaseAuth.getInstance()
-
     var phoneNumber by mutableStateOf("")
-    var verificationId by mutableStateOf("")
-    var idToken by mutableStateOf("")
     var otp by mutableStateOf("")
+
+    var expanded by mutableStateOf(false)
+
+    var verificationId = ""
+    private var idToken = ""
 
     var selectedUsername by mutableStateOf("")
     var selectedOption by mutableIntStateOf(-1)
 
     var university by mutableStateOf("")
-
     var profession by mutableStateOf("")
-
     var companyName by mutableStateOf("")
-    var expanded by mutableStateOf(false)
 
     private val _usernames = MutableStateFlow<List<String>>(emptyList())
     val usernames: StateFlow<List<String>> = _usernames
+    private val _loginResponse = MutableStateFlow<Resource<ResponseData>>(Resource.Loading)
+    val loginResponse: StateFlow<Resource<ResponseData>> = _loginResponse
+
+    val navigateToOtpVerification = oneShotFlow<Unit>()
+    val navigateToChooseName = oneShotFlow<Unit>()
+    val navigateToHome = oneShotFlow<Unit>()
 
     init {
         fetchUsernames()
@@ -62,8 +84,10 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun getCompaniesFromJson(context: Context): List<String> {
-        val jsonString = context.resources.openRawResource(R.raw.companies).bufferedReader().use { it.readText() }
-        val companiesResponse: CompanyList = Gson().fromJson(jsonString, object : TypeToken<CompanyList>() {}.type)
+        val jsonString = context.resources.openRawResource(R.raw.companies).bufferedReader()
+            .use { it.readText() }
+        val companiesResponse: CompanyList =
+            Gson().fromJson(jsonString, object : TypeToken<CompanyList>() {}.type)
         return companiesResponse.companies
     }
 
@@ -77,7 +101,6 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun registerUser() {
-
         val requestBody = RegisterRequestBody(
             idToken = idToken,
             phone = phoneNumber,
@@ -86,18 +109,108 @@ class RegisterViewModel @Inject constructor(
             university = (university.ifEmpty { null }),
             profession = (profession.ifEmpty { null })
         )
-        Log.d("api-block", "from viewwmodel:- ${requestBody.company} ${requestBody.university} ${requestBody.profession}")
+        Log.d(
+            "api-block",
+            "from viewwmodel:- ${requestBody.company} ${requestBody.university} ${requestBody.profession}"
+        )
 
         viewModelScope.launch {
             try {
                 val response = api.register(requestBody = requestBody)
+                _loginResponse.value =  Resource.Success(response)
                 Log.d("api-block", "$response")
             } catch (e: Exception) {
                 Toast.makeText(context, "Registration failed: ${e.message}", Toast.LENGTH_SHORT)
                     .show()
-                Log.d("api-block", "${e.stackTrace}")
+                Log.d("api-block", "${e.stackTrace} ${e.message}")
             }
         }
     }
 
+    private fun loginUser() {
+
+        val requestBody = LoginRequestBody(
+            idToken = idToken,
+            phone = phoneNumber
+        )
+
+        Log.d(
+            "api-block",
+            "from viewwmodel:- ${requestBody.phone} ${requestBody.idToken}"
+        )
+
+        viewModelScope.launch {
+            try {
+                val response = api.login(requestBody = requestBody)
+                navigateToHome.tryEmit(Unit)
+            } catch (e: HttpException) {
+                if (e.code() == 400) {
+                    navigateToChooseName.tryEmit(Unit)
+                } else {
+                    Toast.makeText(context, "Login failed: ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Login failed: ${e.message}", Toast.LENGTH_SHORT)
+                    .show()
+                Log.d("api-block", "${e.message}")
+            }
+        }
+    }
+
+    fun sendOtp(activity: ComponentActivity) {
+        val options = PhoneAuthOptions.newBuilder(Firebase.auth)
+            .setPhoneNumber("+91 $phoneNumber")
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setActivity(activity)
+            .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                override fun onVerificationCompleted(p0: PhoneAuthCredential) {
+                    Log.d(TAG, "onVerificationCompleted: Number auto verified")
+                }
+
+                override fun onVerificationFailed(p0: FirebaseException) {
+                    Toast.makeText(context, "please try again", Toast.LENGTH_SHORT)
+                        .show()
+                }
+
+                override fun onCodeSent(
+                    p0: String,
+                    p1: PhoneAuthProvider.ForceResendingToken
+                ) {
+                    super.onCodeSent(p0, p1)
+                    verificationId = p0
+                    Log.d(
+                        "auth-check",
+                        "storedVerificationId from viewmodel = $verificationId"
+                    )
+
+                    Log.d("auth-check", "storedVerificationId = $p0")
+                    navigateToOtpVerification.tryEmit(Unit)
+                }
+
+            }).build()
+
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
+
+    fun verifyOtp() {
+        val credential = PhoneAuthProvider.getCredential(
+            verificationId,
+            otp
+        )
+
+        Firebase.auth.signInWithCredential(credential)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    task.result.user?.getIdToken(true)?.addOnSuccessListener { result ->
+                        val idToken = result.token
+                        Log.d("idToken", "user id token is :- ${idToken.toString()}")
+                        this.idToken = idToken.toString()
+                        loginUser()
+                    }
+                } else {
+                    Toast.makeText(context, "failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
 }

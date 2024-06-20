@@ -1,6 +1,5 @@
 package dev.prince.ripplereach.ui.register
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
@@ -17,6 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -31,17 +31,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.firebase.FirebaseException
-import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
-import com.google.firebase.auth.PhoneAuthProvider
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.prince.ripplereach.ui.destinations.OTPVerifyScreenDestination
 import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
-import java.util.concurrent.TimeUnit
 
 @Destination(start = true)
 @Composable
@@ -50,10 +45,14 @@ fun PhoneAuthScreen(
 ) {
 
     val activity = LocalContext.current as ComponentActivity
-
     val viewModel: RegisterViewModel = hiltViewModel(activity)
-
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.navigateToOtpVerification.collect {
+            navigator.navigate(OTPVerifyScreenDestination)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -145,41 +144,7 @@ fun PhoneAuthScreen(
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
                 onClick = {
-                    val options = PhoneAuthOptions.newBuilder(viewModel.auth)
-                        .setPhoneNumber("+91 ${viewModel.phoneNumber}")
-                        .setTimeout(60L, TimeUnit.SECONDS)
-                        .setActivity(activity)
-                        .setCallbacks(object :
-                            PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                            override fun onVerificationCompleted(p0: PhoneAuthCredential) {
-
-                            }
-
-                            override fun onVerificationFailed(p0: FirebaseException) {
-                                Toast.makeText(context, "please try again", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-
-                            override fun onCodeSent(
-                                p0: String,
-                                p1: PhoneAuthProvider.ForceResendingToken
-                            ) {
-                                super.onCodeSent(p0, p1)
-                                viewModel.verificationId = p0
-                                Log.d(
-                                    "auth-check",
-                                    "storedVerificationId from viewmodel = ${viewModel.verificationId}"
-                                )
-
-                                Log.d("auth-check", "storedVerificationId = $p0")
-                                navigator.navigate(
-                                    OTPVerifyScreenDestination()
-                                )
-                            }
-
-                        }).build()
-                    PhoneAuthProvider.verifyPhoneNumber(options)
-
+                    viewModel.sendOtp(activity)
                 }
             ) {
                 Text(

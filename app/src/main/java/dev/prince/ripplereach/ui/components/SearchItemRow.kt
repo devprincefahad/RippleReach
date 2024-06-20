@@ -54,12 +54,12 @@ fun SearchItemRow(
 
                 navigator.navigate(
                     HomeScreenDestination(
-                        userName,
-                        phoneNumber,
-                        viewModel.idToken,
-                        companyName.orEmpty(),
-                        profession,
-                        universityName.orEmpty()
+//                        userName,
+//                        phoneNumber,
+//                        viewModel.idToken,
+//                        companyName.orEmpty(),
+//                        profession,
+//                        universityName.orEmpty()
                     )
                 )
             }

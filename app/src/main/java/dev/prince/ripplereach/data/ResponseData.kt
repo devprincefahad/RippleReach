@@ -1,6 +1,9 @@
 package dev.prince.ripplereach.data
 
-data class RegisterResponse(
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ResponseData(
     val message: String,
     val user: User,
     val auth: Auth

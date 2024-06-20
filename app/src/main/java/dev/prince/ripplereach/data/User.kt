@@ -1,7 +1,8 @@
 package dev.prince.ripplereach.data
 
-import java.util.Date
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class User(
     val userId: Long,
     val username: String,
@@ -11,7 +12,7 @@ data class User(
     val profession: String,
     val isVerified: Boolean,
     val avatar: String,
-    val createdAt: Date,
-    val updatedAt: Date,
-    val deletedAt: Date?
+    val createdAt: String,
+    val updatedAt: String,
+    val deletedAt: String?
 )

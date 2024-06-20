@@ -5,6 +5,8 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.firebase.crashlytics")
     id("com.google.gms.google-services")
+    id ("kotlinx-serialization")
+    id ("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -62,6 +64,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // Compose Nav Destinations
     implementation("io.github.raamcosta.compose-destinations:core:1.9.52")
@@ -85,6 +88,10 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
 
     implementation ("androidx.compose.material3:material3:1.2.1")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.1")

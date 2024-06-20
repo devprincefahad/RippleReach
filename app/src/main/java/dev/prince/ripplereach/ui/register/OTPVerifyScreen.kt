@@ -18,7 +18,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -30,17 +34,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.android.gms.tasks.Tasks
-import com.google.firebase.auth.GetTokenResult
 import com.google.firebase.auth.PhoneAuthProvider
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import dev.prince.ripplereach.data.ResponseData
 import dev.prince.ripplereach.ui.destinations.ChooseNameScreenDestination
+import dev.prince.ripplereach.ui.destinations.HomeScreenDestination
 import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
-import kotlinx.coroutines.tasks.await
-import java.util.Objects
+import dev.prince.ripplereach.util.Resource
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 
 @Destination
@@ -49,11 +55,20 @@ fun OTPVerifyScreen(
     navigator: DestinationsNavigator
 ) {
     val context = LocalContext.current
-
     val activity = LocalContext.current as ComponentActivity
-
     val viewModel: RegisterViewModel = hiltViewModel(activity)
 
+    LaunchedEffect(Unit) {
+        viewModel.navigateToChooseName.collect {
+            navigator.navigate(ChooseNameScreenDestination)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.navigateToHome.collect {
+            navigator.navigate(HomeScreenDestination)
+        }
+    }
     Column(
         modifier = Modifier
             .imePadding()
@@ -157,42 +172,7 @@ fun OTPVerifyScreen(
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
             onClick = {
-//                if (viewModel.otp.isNotEmpty() && viewModel.storedVerificationId.isNotEmpty()) {
-                val credential = PhoneAuthProvider.getCredential(
-                    viewModel.verificationId,
-                    viewModel.otp
-                )
-
-                viewModel.auth.signInWithCredential(credential)
-                    .addOnCompleteListener { task ->
-
-                        if (task.isSuccessful) {
-                            task.result.user?.getIdToken(true)?.addOnSuccessListener { result ->
-                                 val idToken = result.token
-                                 viewModel.idToken = idToken!!
-                            }
-                            Toast.makeText(context, "success", Toast.LENGTH_SHORT).show()
-                            Log.d("auth-check", "verf otp from viewmodel ${viewModel.otp}")
-                            Log.d(
-                                "auth-check",
-                                "id from viewmodel ${viewModel.idToken}"
-                            )
-                            navigator.navigate(ChooseNameScreenDestination())
-                        } else {
-                            Toast.makeText(context, "failed", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-//                    .onSuccessTask { result ->
-//
-//                        val token  = result.user?.getIdToken(true)
-//                        val idToken = token?.result?.token
-//                        viewModel.idToken = idToken!!
-//
-//
-//                    }
-//                } else {
-//                    Toast.makeText(context, "Please enter OTP", Toast.LENGTH_SHORT).show()
-//                }
+                viewModel.verifyOtp()
             }
         ) {
             Text(
