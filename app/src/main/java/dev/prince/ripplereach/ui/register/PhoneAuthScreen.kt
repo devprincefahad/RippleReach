@@ -2,6 +2,7 @@ package dev.prince.ripplereach.ui.register
 
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,9 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -147,16 +150,24 @@ fun PhoneAuthScreen(
                     viewModel.sendOtp(activity)
                 }
             ) {
-                Text(
-                    text = "Request OTP",
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        fontFamily = quickStandFamily
-                    )
-                )
+                AnimatedContent(viewModel.isLoadingForOtpSend, label = "") {
+                    if (it) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Text(
+                            text = "Request OTP",
+                            style = TextStyle(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = quickStandFamily
+                            )
+                        )
+                    }
+                }
             }
-
             Text(
                 modifier = Modifier
                     .padding(bottom = 14.dp),

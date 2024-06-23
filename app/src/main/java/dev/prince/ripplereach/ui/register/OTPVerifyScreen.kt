@@ -3,6 +3,7 @@ package dev.prince.ripplereach.ui.register
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,9 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -57,6 +60,8 @@ fun OTPVerifyScreen(
     val context = LocalContext.current
     val activity = LocalContext.current as ComponentActivity
     val viewModel: RegisterViewModel = hiltViewModel(activity)
+
+    val responseData by viewModel.responseData.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.navigateToChooseName.collect {
@@ -175,14 +180,23 @@ fun OTPVerifyScreen(
                 viewModel.verifyOtp()
             }
         ) {
-            Text(
-                text = "Verify",
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = quickStandFamily
-                )
-            )
+            AnimatedContent(viewModel.isLoadingForOtpVerify, label = "") {
+                if (it) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        text = "Verify",
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = quickStandFamily
+                        )
+                    )
+                }
+            }
         }
     }
 }

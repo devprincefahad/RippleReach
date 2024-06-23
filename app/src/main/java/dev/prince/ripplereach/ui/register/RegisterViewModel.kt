@@ -11,7 +11,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.FirebaseException
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
@@ -28,11 +27,8 @@ import dev.prince.ripplereach.data.RegisterRequestBody
 import dev.prince.ripplereach.data.ResponseData
 import dev.prince.ripplereach.data.UniversityList
 import dev.prince.ripplereach.network.ApiService
-import dev.prince.ripplereach.ui.destinations.ChooseNameScreenDestination
-import dev.prince.ripplereach.ui.destinations.OTPVerifyScreenDestination
 import dev.prince.ripplereach.util.Resource
 import dev.prince.ripplereach.util.oneShotFlow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -66,12 +62,15 @@ class RegisterViewModel @Inject constructor(
 
     private val _usernames = MutableStateFlow<List<String>>(emptyList())
     val usernames: StateFlow<List<String>> = _usernames
-    private val _loginResponse = MutableStateFlow<Resource<ResponseData>>(Resource.Loading)
-    val loginResponse: StateFlow<Resource<ResponseData>> = _loginResponse
+    private val _responseData = MutableStateFlow<Resource<ResponseData>>(Resource.Loading)
+    val responseData: StateFlow<Resource<ResponseData>> = _responseData
 
     val navigateToOtpVerification = oneShotFlow<Unit>()
     val navigateToChooseName = oneShotFlow<Unit>()
     val navigateToHome = oneShotFlow<Unit>()
+
+    var isLoadingForOtpSend by (mutableStateOf(false))
+    var isLoadingForOtpVerify by (mutableStateOf(false))
 
     init {
         fetchUsernames()
@@ -117,7 +116,7 @@ class RegisterViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = api.register(requestBody = requestBody)
-                _loginResponse.value =  Resource.Success(response)
+                _responseData.value =  Resource.Success(response)
                 Log.d("api-block", "$response")
             } catch (e: Exception) {
                 Toast.makeText(context, "Registration failed: ${e.message}", Toast.LENGTH_SHORT)
@@ -142,9 +141,10 @@ class RegisterViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = api.login(requestBody = requestBody)
+                _responseData.value =  Resource.Success(response)
                 navigateToHome.tryEmit(Unit)
             } catch (e: HttpException) {
-                if (e.code() == 400) {
+                if (e.code() == 404) {
                     navigateToChooseName.tryEmit(Unit)
                 } else {
                     Toast.makeText(context, "Login failed: ${e.message}", Toast.LENGTH_SHORT)
@@ -159,6 +159,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun sendOtp(activity: ComponentActivity) {
+        isLoadingForOtpSend = true
         val options = PhoneAuthOptions.newBuilder(Firebase.auth)
             .setPhoneNumber("+91 $phoneNumber")
             .setTimeout(60L, TimeUnit.SECONDS)
@@ -179,6 +180,7 @@ class RegisterViewModel @Inject constructor(
                 ) {
                     super.onCodeSent(p0, p1)
                     verificationId = p0
+                    isLoadingForOtpSend = false
                     Log.d(
                         "auth-check",
                         "storedVerificationId from viewmodel = $verificationId"
@@ -194,6 +196,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun verifyOtp() {
+        isLoadingForOtpVerify = true
         val credential = PhoneAuthProvider.getCredential(
             verificationId,
             otp
@@ -201,6 +204,7 @@ class RegisterViewModel @Inject constructor(
 
         Firebase.auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
+                isLoadingForOtpVerify = false
                 if (task.isSuccessful) {
                     task.result.user?.getIdToken(true)?.addOnSuccessListener { result ->
                         val idToken = result.token

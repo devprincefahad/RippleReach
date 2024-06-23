@@ -63,8 +63,12 @@ fun ChooseUniversity(
     }
 
     val filteredUniversities = remember(universityList, viewModel.university) {
-        universityList.filter {
-            it.contains(viewModel.university, ignoreCase = true)
+        if (viewModel.university.isEmpty()) {
+            universityList
+        } else {
+            universityList.filter {
+                it.contains(viewModel.university, ignoreCase = true)
+            }
         }
     }
 

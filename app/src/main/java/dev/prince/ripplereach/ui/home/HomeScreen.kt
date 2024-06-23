@@ -2,6 +2,7 @@ package dev.prince.ripplereach.ui.home
 
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +25,8 @@ fun HomeScreen(
 //    responseData: ResponseData
 ) {
 
-    val activity = LocalContext.current as ComponentActivity
+    val context = LocalContext.current
+    val activity = context as ComponentActivity
 
     val viewModel: HomeViewModel = hiltViewModel(activity)
 
@@ -41,5 +43,10 @@ fun HomeScreen(
 //        Log.d("data-output","$professionItem $userName $phoneNumber $idToken $company $university")
 
 //    }
+
+
+    BackHandler {
+        (context as ComponentActivity).finish()
+    }
 
 }
