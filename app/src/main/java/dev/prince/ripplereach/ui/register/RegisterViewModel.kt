@@ -117,6 +117,7 @@ class RegisterViewModel @Inject constructor(
             try {
                 val response = api.register(requestBody = requestBody)
                 _responseData.value =  Resource.Success(response)
+                navigateToHome.tryEmit(Unit)
                 Log.d("api-block", "$response")
             } catch (e: Exception) {
                 Toast.makeText(context, "Registration failed: ${e.message}", Toast.LENGTH_SHORT)
@@ -142,6 +143,10 @@ class RegisterViewModel @Inject constructor(
             try {
                 val response = api.login(requestBody = requestBody)
                 _responseData.value =  Resource.Success(response)
+                Log.d(
+                    "api-block",
+                    "response from viewwmodel:- ${response}"
+                )
                 navigateToHome.tryEmit(Unit)
             } catch (e: HttpException) {
                 if (e.code() == 404) {
