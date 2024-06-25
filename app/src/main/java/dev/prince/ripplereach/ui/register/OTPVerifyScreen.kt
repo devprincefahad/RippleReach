@@ -61,8 +61,6 @@ fun OTPVerifyScreen(
     val activity = LocalContext.current as ComponentActivity
     val viewModel: RegisterViewModel = hiltViewModel(activity)
 
-    val responseData by viewModel.responseData.collectAsState()
-
     LaunchedEffect(Unit) {
         viewModel.navigateToChooseName.collect {
             navigator.navigate(ChooseNameScreenDestination)

@@ -41,7 +41,7 @@ import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
 
-@Destination(start = true)
+@Destination
 @Composable
 fun PhoneAuthScreen(
     navigator: DestinationsNavigator

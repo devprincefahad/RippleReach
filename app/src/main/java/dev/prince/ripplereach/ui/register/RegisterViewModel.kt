@@ -26,13 +26,14 @@ import dev.prince.ripplereach.data.LoginRequestBody
 import dev.prince.ripplereach.data.RegisterRequestBody
 import dev.prince.ripplereach.data.ResponseData
 import dev.prince.ripplereach.data.UniversityList
+import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
-import dev.prince.ripplereach.util.Resource
 import dev.prince.ripplereach.util.oneShotFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import retrofit2.Response
 import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -42,7 +43,8 @@ private const val TAG = "RegisterViewModel"
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     @ApplicationContext val context: Context,
-    private val api: ApiService
+    private val api: ApiService,
+    private val prefs: SharedPrefHelper
 ) : ViewModel() {
 
     var phoneNumber by mutableStateOf("")
@@ -62,8 +64,8 @@ class RegisterViewModel @Inject constructor(
 
     private val _usernames = MutableStateFlow<List<String>>(emptyList())
     val usernames: StateFlow<List<String>> = _usernames
-    private val _responseData = MutableStateFlow<Resource<ResponseData>>(Resource.Loading)
-    val responseData: StateFlow<Resource<ResponseData>> = _responseData
+//    private val _responseData = MutableStateFlow<Resource<ResponseData>>(Resource.Loading)
+//    val responseData: StateFlow<Resource<ResponseData>> = _responseData
 
     val navigateToOtpVerification = oneShotFlow<Unit>()
     val navigateToChooseName = oneShotFlow<Unit>()
@@ -116,7 +118,8 @@ class RegisterViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = api.register(requestBody = requestBody)
-                _responseData.value =  Resource.Success(response)
+//                _responseData.value =  Resource.Success(response)
+                saveUserInfo(response)
                 navigateToHome.tryEmit(Unit)
                 Log.d("api-block", "$response")
             } catch (e: Exception) {
@@ -142,7 +145,8 @@ class RegisterViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = api.login(requestBody = requestBody)
-                _responseData.value =  Resource.Success(response)
+                saveUserInfo(response)
+//                _responseData.value =  Resource.Success(response)
                 Log.d(
                     "api-block",
                     "response from viewwmodel:- ${response}"
@@ -161,6 +165,10 @@ class RegisterViewModel @Inject constructor(
                 Log.d("api-block", "${e.message}")
             }
         }
+    }
+
+    private fun saveUserInfo(response: ResponseData) {
+        prefs.response = response
     }
 
     fun sendOtp(activity: ComponentActivity) {

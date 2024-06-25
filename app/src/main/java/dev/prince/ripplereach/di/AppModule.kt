@@ -1,9 +1,12 @@
 package dev.prince.ripplereach.di
 
+import android.content.Context
+import android.content.SharedPreferences
 import com.google.firebase.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.prince.ripplereach.network.ApiService
 import dev.prince.ripplereach.util.BASE_URL
@@ -53,5 +56,14 @@ object AppModule {
     @Provides
     @Singleton
     fun provideApiService(retrofit: Retrofit) = retrofit.create(ApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.getSharedPreferences(
+            "response_shared_prefs",
+            Context.MODE_PRIVATE
+        )
+    }
 
 }
