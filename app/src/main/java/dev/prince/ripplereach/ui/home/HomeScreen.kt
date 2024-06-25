@@ -34,7 +34,7 @@ fun HomeScreen(
 
     Log.d("user-data", "$user")
 
-    if (!viewModel.isUserLoggedIn) {
+    if (!viewModel.isUserLoggedIn()) {
         navigator.navigate(PhoneAuthScreenDestination)
     } else {
         HomeScreenContent()

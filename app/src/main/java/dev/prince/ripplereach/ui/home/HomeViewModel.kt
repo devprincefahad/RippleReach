@@ -15,6 +15,9 @@ class HomeViewModel @Inject constructor(
     private val prefs: SharedPrefHelper
 ) : ViewModel() {
 
-    val isUserLoggedIn = prefs.isUserDataAvailable()
+    fun isUserLoggedIn(): Boolean {
+        return prefs.isUserDataAvailable()
+    }
+
     val responseData = prefs.response
 }
