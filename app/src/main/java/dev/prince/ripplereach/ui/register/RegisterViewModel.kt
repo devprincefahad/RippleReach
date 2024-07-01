@@ -29,6 +29,7 @@ import dev.prince.ripplereach.data.UniversityList
 import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
 import dev.prince.ripplereach.util.oneShotFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -64,8 +65,9 @@ class RegisterViewModel @Inject constructor(
 
     private val _usernames = MutableStateFlow<List<String>>(emptyList())
     val usernames: StateFlow<List<String>> = _usernames
-//    private val _responseData = MutableStateFlow<Resource<ResponseData>>(Resource.Loading)
-//    val responseData: StateFlow<Resource<ResponseData>> = _responseData
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     val navigateToOtpVerification = oneShotFlow<Unit>()
     val navigateToChooseName = oneShotFlow<Unit>()
@@ -116,16 +118,20 @@ class RegisterViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val response = api.register(requestBody = requestBody)
 //                _responseData.value =  Resource.Success(response)
                 saveUserInfo(response)
+                delay(2000)
                 navigateToHome.tryEmit(Unit)
                 Log.d("api-block", "$response")
             } catch (e: Exception) {
                 Toast.makeText(context, "Registration failed: ${e.message}", Toast.LENGTH_SHORT)
                     .show()
                 Log.d("api-block", "${e.stackTrace} ${e.message}")
+            } finally {
+                _isLoading.value = false // Hide loading indicator
             }
         }
     }

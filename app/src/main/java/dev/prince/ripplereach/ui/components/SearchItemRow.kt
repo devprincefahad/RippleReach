@@ -35,12 +35,10 @@ import dev.prince.ripplereach.util.Resource
 fun SearchItemRow(
     navigator: DestinationsNavigator,
     profession: String?,
-    userName: String,
-    phoneNumber: String,
-    companyName: String?,
     universityName: String?,
-    onItemClick: (String) -> Unit
+    onItemClick: () -> Unit
 ) {
+
     val activity = LocalContext.current as ComponentActivity
 
     val viewModel: RegisterViewModel = hiltViewModel(activity)
@@ -54,15 +52,8 @@ fun SearchItemRow(
     Row(
         modifier = Modifier
             .clickable {
-
-                if (profession?.isNotEmpty() == true) {
-                    onItemClick(profession)
-                } else {
-                    onItemClick(universityName!!)
-                }
-
+                onItemClick()
                 viewModel.registerUser()
-
             }
             .fillMaxWidth()
             .padding(vertical = 8.dp),
