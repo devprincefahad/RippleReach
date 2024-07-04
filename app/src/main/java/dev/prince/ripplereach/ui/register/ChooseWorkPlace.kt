@@ -53,6 +53,7 @@ import dev.prince.ripplereach.ui.destinations.ChooseUniversityDestination
 import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
+import dev.prince.ripplereach.util.LocalSnackbar
 import dev.prince.ripplereach.util.SetSoftInputMode
 
 @Destination
@@ -88,6 +89,14 @@ fun ChooseWorkPlace(
                 it.contains(viewModel.companyName, ignoreCase = true)
             }
         )
+    }
+
+    val snackBar = LocalSnackbar.current
+
+    LaunchedEffect(Unit) {
+        viewModel.messages.collect {
+            snackBar(it)
+        }
     }
 
     Column(
@@ -185,8 +194,7 @@ fun ChooseWorkPlace(
                     .padding(vertical = 16.dp),
                 onClick = {
                     if (viewModel.companyName.isEmpty()) {
-                        Toast.makeText(context, "Please select a company", Toast.LENGTH_SHORT)
-                            .show()
+                        viewModel.showSnackBarMsg("Please select a company")
                     } else {
                         navigator.navigate(
                             ChooseProfessionDestination()

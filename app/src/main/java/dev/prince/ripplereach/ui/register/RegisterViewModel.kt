@@ -76,6 +76,8 @@ class RegisterViewModel @Inject constructor(
     var isLoadingForOtpSend by (mutableStateOf(false))
     var isLoadingForOtpVerify by (mutableStateOf(false))
 
+    val messages = oneShotFlow<String>()
+
     init {
         fetchUsernames()
     }
@@ -127,11 +129,10 @@ class RegisterViewModel @Inject constructor(
                 navigateToHome.tryEmit(Unit)
                 Log.d("api-block", "$response")
             } catch (e: Exception) {
-                Toast.makeText(context, "Registration failed: ${e.message}", Toast.LENGTH_SHORT)
-                    .show()
+                showSnackBarMsg("Registration failed: ${e.message}")
                 Log.d("api-block", "${e.stackTrace} ${e.message}")
             } finally {
-                _isLoading.value = false // Hide loading indicator
+                _isLoading.value = false
             }
         }
     }
@@ -162,12 +163,10 @@ class RegisterViewModel @Inject constructor(
                 if (e.code() == 404) {
                     navigateToChooseName.tryEmit(Unit)
                 } else {
-                    Toast.makeText(context, "Login failed: ${e.message}", Toast.LENGTH_SHORT)
-                        .show()
+                    showSnackBarMsg("Login failed: ${e.message}")
                 }
             } catch (e: Exception) {
-                Toast.makeText(context, "Login failed: ${e.message}", Toast.LENGTH_SHORT)
-                    .show()
+                showSnackBarMsg("Login failed: ${e.message}")
                 Log.d("api-block", "${e.message}")
             }
         }
@@ -189,8 +188,7 @@ class RegisterViewModel @Inject constructor(
                 }
 
                 override fun onVerificationFailed(p0: FirebaseException) {
-                    Toast.makeText(context, "please try again", Toast.LENGTH_SHORT)
-                        .show()
+                    showSnackBarMsg("Please try again")
                 }
 
                 override fun onCodeSent(
@@ -232,8 +230,13 @@ class RegisterViewModel @Inject constructor(
                         loginUser()
                     }
                 } else {
-                    Toast.makeText(context, "failed", Toast.LENGTH_SHORT).show()
+                    showSnackBarMsg("Failed")
                 }
             }
     }
+
+    fun showSnackBarMsg(msg: String) {
+        messages.tryEmit(msg)
+    }
+
 }

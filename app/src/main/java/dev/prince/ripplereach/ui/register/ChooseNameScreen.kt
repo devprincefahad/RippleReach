@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,7 @@ import dev.prince.ripplereach.ui.destinations.ChooseWorkPlaceDestination
 import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
+import dev.prince.ripplereach.util.LocalSnackbar
 
 @Destination
 @Composable
@@ -51,11 +53,19 @@ fun ChooseNameScreen(
 
     val context = LocalContext.current
 
-    val activity = LocalContext.current as ComponentActivity
+    val activity = context as ComponentActivity
 
     val viewModel: RegisterViewModel = hiltViewModel(activity)
 
     val userNames by viewModel.usernames.collectAsState()
+
+    val snackBar = LocalSnackbar.current
+
+    LaunchedEffect(Unit) {
+        viewModel.messages.collect {
+            snackBar(it)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -171,7 +181,7 @@ fun ChooseNameScreen(
                 .padding(vertical = 16.dp),
             onClick = {
                 if (viewModel.selectedOption == -1) {
-                    Toast.makeText(context, "Please select a username", Toast.LENGTH_SHORT).show()
+                    viewModel.showSnackBarMsg("Please select a username")
                 } else {
                     navigator.navigate(
                         ChooseWorkPlaceDestination()

@@ -46,6 +46,7 @@ import dev.prince.ripplereach.ui.destinations.HomeScreenDestination
 import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
+import dev.prince.ripplereach.util.LocalSnackbar
 import dev.prince.ripplereach.util.Resource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -60,7 +61,13 @@ fun OTPVerifyScreen(
     val context = LocalContext.current
     val activity = LocalContext.current as ComponentActivity
     val viewModel: RegisterViewModel = hiltViewModel(activity)
+    val snackBar = LocalSnackbar.current
 
+    LaunchedEffect(Unit) {
+        viewModel.messages.collect {
+            snackBar(it)
+        }
+    }
     LaunchedEffect(Unit) {
         viewModel.navigateToChooseName.collect {
             navigator.navigate(ChooseNameScreenDestination)
@@ -111,7 +118,7 @@ fun OTPVerifyScreen(
                 if (it.length <= 6) {
                     viewModel.otp = it
                 } else {
-                    Toast.makeText(context, "6 digit otp", Toast.LENGTH_SHORT).show()
+                    viewModel.showSnackBarMsg("6 digit otp")
                 }
             },
             placeholder = {

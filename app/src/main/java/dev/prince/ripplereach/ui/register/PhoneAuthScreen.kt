@@ -40,6 +40,7 @@ import dev.prince.ripplereach.ui.destinations.OTPVerifyScreenDestination
 import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
+import dev.prince.ripplereach.util.LocalSnackbar
 
 @Destination
 @Composable
@@ -47,9 +48,16 @@ fun PhoneAuthScreen(
     navigator: DestinationsNavigator
 ) {
 
-    val activity = LocalContext.current as ComponentActivity
-    val viewModel: RegisterViewModel = hiltViewModel(activity)
     val context = LocalContext.current
+    val activity = context as ComponentActivity
+    val viewModel: RegisterViewModel = hiltViewModel(activity)
+    val snackBar = LocalSnackbar.current
+
+    LaunchedEffect(Unit) {
+        viewModel.messages.collect {
+            snackBar(it)
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.navigateToOtpVerification.collect {
@@ -96,7 +104,7 @@ fun PhoneAuthScreen(
                 if (it.length <= 10) {
                     viewModel.phoneNumber = it
                 } else {
-                    Toast.makeText(context, "10 digit num", Toast.LENGTH_SHORT).show()
+                    viewModel.showSnackBarMsg("10 digit num")
                 }
             },
             placeholder = {
