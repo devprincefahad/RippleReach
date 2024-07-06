@@ -2,7 +2,6 @@ package dev.prince.ripplereach.data
 
 import com.google.gson.annotations.SerializedName
 
-
 data class CategoryResponse(
     @SerializedName("content")
     val content: List<CategoryContent>,
@@ -11,17 +10,18 @@ data class CategoryResponse(
 )
 
 data class CategoryContent(
-    @SerializedName("category")
-    val category: Category
-)
-
-data class Category(
     @SerializedName("id")
     val id: Int,
     @SerializedName("name")
     val name: String,
     @SerializedName("description")
     val description: String,
+    @SerializedName("createdAt")
+    val createdAt: String,
+    @SerializedName("updatedAt")
+    val updatedAt: String,
+    @SerializedName("slug")
+    val slug: String,
     @SerializedName("communities")
     val communities: List<Community>
 )
@@ -34,7 +34,13 @@ data class Community(
     @SerializedName("description")
     val description: String,
     @SerializedName("imageUrl")
-    val imageUrl: String
+    val imageUrl: String,
+    @SerializedName("createdAt")
+    val createdAt: String,
+    @SerializedName("updatedAt")
+    val updatedAt: String,
+    @SerializedName("slug")
+    val slug: String
 )
 
 data class Page(

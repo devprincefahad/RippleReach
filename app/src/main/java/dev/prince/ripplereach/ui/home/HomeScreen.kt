@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,10 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,15 +36,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import coil.compose.rememberImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.prince.ripplereach.R
-import dev.prince.ripplereach.data.Category
+import dev.prince.ripplereach.data.CategoryContent
+import dev.prince.ripplereach.data.Community
+import dev.prince.ripplereach.data.Post
 import dev.prince.ripplereach.ui.destinations.PhoneAuthScreenDestination
 import dev.prince.ripplereach.ui.theme.quickStandFamily
-import dev.prince.ripplereach.util.BASE_URL
-import org.jetbrains.annotations.Async
+import dev.prince.ripplereach.ui.theme.rufinaFamily
 
 @Destination(start = true)
 @Composable
@@ -76,23 +76,127 @@ fun HomeScreen(
 fun HomeScreenContent(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+
+    val posts by viewModel.posts.collectAsState()
+    val categories by viewModel.categories.collectAsState()
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
 
-        CategoriesList()
-        Text(text = "Home screen")
+        Text(
+            modifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .fillMaxWidth(),
+            text = "Ripple Reach",
+            color = Color.Black,
+            style = TextStyle(
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = rufinaFamily
+            )
+        )
+
+        CategoriesList(categories)
+
+        PostList(posts = posts)
+
     }
 }
 
 @Composable
-fun CategoriesList(
-    viewModel: HomeViewModel = hiltViewModel()
-) {
+fun PostItem(post: Post) {
+    Surface(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
+        shadowElevation = 4.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
 
-    val categories by viewModel.categories.collectAsState()
+            Text(
+                text = post.title,
+                color = Color.Black,
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = quickStandFamily
+                )
+            )
 
-    Log.d("HomeScreen", "$categories")
+            Text(
+                text = post.content,
+                color = Color.Black,
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = quickStandFamily
+                )
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                val imageUrl =
+                    "https://ripplereach-0-0-1-snapshot.onrender.com${post.author.avatar}"
+
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = post.author.username,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .aspectRatio(1f),
+                    contentScale = ContentScale.Crop
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Column {
+                    Text(
+                        text = post.author.username,
+                        color = Color.Black,
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = quickStandFamily
+                        )
+                    )
+
+                    post.postCommunity?.let {
+                        Text(
+                            text = it.name,
+                            color = Color.Black,
+                            style = TextStyle(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = quickStandFamily
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PostList(posts: List<Post>) {
+    LazyColumn {
+        items(posts) { post ->
+            PostItem(post = post)
+        }
+    }
+}
+
+@Composable
+fun CategoriesList(categories: List<CategoryContent>) {
+
+    val randomCommunities = categories.flatMap { it.communities }.shuffled().take(6)
+
+    Log.d("HomeScreen", "randomCommunities:- $randomCommunities")
 
     LazyRow(
         modifier = Modifier
@@ -100,8 +204,10 @@ fun CategoriesList(
             .padding(vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        items(categories.take(6)) { categoryContent ->
-            CategoryItem(category = categoryContent.category)
+
+        items(randomCommunities.size) { index ->
+            val community = randomCommunities[index]
+            CommunityItem(community = community)
         }
         item {
             AllCategoryItem()
@@ -110,29 +216,31 @@ fun CategoriesList(
 }
 
 @Composable
-fun CategoryItem(category: Category) {
+fun CommunityItem(community: Community) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .width(58.dp)
+            .padding(horizontal = 12.dp)
+            .width(68.dp)
     ) {
 
-        val imageUrl =
-            category.communities.firstOrNull()?.imageUrl?.let { "https://ripplereach-0-0-1-snapshot.onrender.com/$it" }
-                ?: ""
+        val imageUrl = community.imageUrl.let {
+            "https://ripplereach-0-0-1-snapshot.onrender.com/$it"
+        }
 
         AsyncImage(
             model = imageUrl,
-            contentDescription = category.name,
+            contentDescription = community.name,
             modifier = Modifier
                 .size(52.dp)
                 .aspectRatio(1f),
             contentScale = ContentScale.Crop
         )
+
         Spacer(modifier = Modifier.height(6.dp))
+
         Text(
-            text = category.name,
+            text = community.name,
             color = Color.Black,
             style = TextStyle(
                 fontSize = 14.sp,
@@ -142,6 +250,7 @@ fun CategoryItem(category: Category) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+
     }
 }
 

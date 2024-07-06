@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.prince.ripplereach.data.CategoryContent
+import dev.prince.ripplereach.data.Community
+import dev.prince.ripplereach.data.Post
 import dev.prince.ripplereach.data.User
 import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
@@ -33,10 +35,14 @@ class HomeViewModel @Inject constructor(
     private val _categories = MutableStateFlow<List<CategoryContent>>(emptyList())
     val categories: StateFlow<List<CategoryContent>> = _categories
 
+    private val _posts = MutableStateFlow<List<Post>>(emptyList())
+    val posts: StateFlow<List<Post>> get() = _posts
+
     val messages = oneShotFlow<String>()
 
     init {
         fetchCategories()
+        fetchAllPosts()
     }
 
     fun showSnackBarMsg(msg: String) {
@@ -47,13 +53,32 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = api.getCategories(limit = 6, offset = 0)
-                _categories.value  = response.content
+                Log.d("fetchCategories", "Response: $response")
+                _categories.value = response.content
             } catch (e: HttpException) {
-                    showSnackBarMsg("HTTP: ${e.message}")
+                showSnackBarMsg("HTTP: ${e.message}")
             } catch (e: Exception) {
                 showSnackBarMsg("Exception: ${e.message}")
                 Log.d("api-block", "${e.message}")
             }
+        }
+    }
+
+    private fun fetchAllPosts() {
+        viewModelScope.launch {
+           try{
+               val response = api.getPosts(
+                   limit = 10,
+                   offset = 0,
+                   sortBy = "createdAt,desc"
+               )
+               _posts.value = response.content
+           } catch (e: HttpException) {
+               showSnackBarMsg("HTTP: ${e.message}")
+           } catch (e: Exception) {
+               showSnackBarMsg("Exception: ${e.message}")
+               Log.d("api-block", "${e.message}")
+           }
         }
     }
 
