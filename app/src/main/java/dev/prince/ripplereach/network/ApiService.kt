@@ -1,8 +1,10 @@
 package dev.prince.ripplereach.network
 
+import dev.prince.ripplereach.data.Auth
 import dev.prince.ripplereach.data.CategoryResponse
 import dev.prince.ripplereach.data.CommunityDetailResponse
 import dev.prince.ripplereach.data.LoginRequestBody
+import dev.prince.ripplereach.data.PostExchangeTokenRequest
 import dev.prince.ripplereach.data.PostResponse
 import dev.prince.ripplereach.data.RegisterRequestBody
 import dev.prince.ripplereach.data.ResponseData
@@ -39,8 +41,12 @@ interface ApiService {
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("sort_by") sortBy: String,
-        //@Query("search") search: String
     ): PostResponse
+
+    @POST("auth/refresh/token")
+    suspend fun exchangeToken(
+        @Body request: PostExchangeTokenRequest
+    ): Auth
 
     @GET("posts/communities/{communityId}")
     suspend fun getPostsByCommunityId(

@@ -11,7 +11,6 @@ class SharedPrefHelper @Inject constructor(
 ) {
 
     private val RESPONSE_DATA = "response_data"
-    private val KEY_ID_TOKEN = "access_token"
 
     var response: ResponseData?
         get() = getResponseData(RESPONSE_DATA)
@@ -34,15 +33,4 @@ class SharedPrefHelper @Inject constructor(
     fun isUserDataAvailable(): Boolean {
         return pref.contains(RESPONSE_DATA)
     }
-
-    fun saveIdToken(idToken: String) {
-        pref.edit {
-            putString(KEY_ID_TOKEN, idToken)
-        }
-    }
-
-    fun getIdToken(): String? {
-        return pref.getString(KEY_ID_TOKEN, null)
-    }
-
 }

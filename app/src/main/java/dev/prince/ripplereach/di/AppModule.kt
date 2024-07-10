@@ -2,13 +2,12 @@ package dev.prince.ripplereach.di
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.google.firebase.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import dev.prince.ripplereach.local.SharedPrefHelper
+import dev.prince.ripplereach.BuildConfig
 import dev.prince.ripplereach.network.ApiService
 import dev.prince.ripplereach.util.BASE_URL
 import okhttp3.OkHttpClient
@@ -39,16 +38,9 @@ object AppModule {
     @Singleton
     fun provideOkHttpClient(
         interceptor: HttpLoggingInterceptor,
-        pref: SharedPrefHelper
     ): OkHttpClient = OkHttpClient
         .Builder()
         .addInterceptor(interceptor)
-//        .addInterceptor {
-//            val request = it.request().newBuilder()
-//                .addHeader("Authorization", "Bearer ${pref.getToken()}")
-//                .build()
-//            it.proceed(request)
-//        }
         .connectTimeout(60, TimeUnit.SECONDS)
         .writeTimeout(120, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.prince.ripplereach.data.CommunityDetailResponse
+import dev.prince.ripplereach.data.PostExchangeTokenRequest
 import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,7 @@ class CommunityViewModel @Inject constructor(
     fun fetchCommunityDetails(communityId: Int) {
         viewModelScope.launch {
             try {
-                val token = pref.getIdToken()
+                val token = pref.response?.auth?.token
                 if (token != null) {
                     val community = api.getPostsByCommunityId("Bearer $token", communityId)
                     _communityDetails.value = community
@@ -34,15 +35,21 @@ class CommunityViewModel @Inject constructor(
                     Log.e("CommunityViewModel", "Token is null")
                 }
             } catch (e: HttpException) {
-                if (e.code() == 401){
-
+                if (e.code() == 401) {
+                    refreshToken()
+                    fetchCommunityDetails(communityId)
                 }
-                Log.e("CommunityViewModel", "HTTP: ${e.message}")
-                Log.d("CommunityViewModel", "${pref.getIdToken()}")
             } catch (e: Exception) {
                 Log.e("CommunityViewModel", "Exception: ${e.message}")
             }
         }
     }
 
+    private suspend fun refreshToken() {
+        pref.response?.auth.let {
+            val request = PostExchangeTokenRequest(it?.refreshToken ?: "", it?.username ?: "")
+            val authResponse = api.exchangeToken(request)
+            pref.response = pref.response?.copy(auth = authResponse)
+        } ?: throw IllegalStateException("Auth is null")
+    }
 }
