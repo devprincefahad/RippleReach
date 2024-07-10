@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -18,8 +19,12 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import dagger.hilt.android.AndroidEntryPoint
 import dev.prince.ripplereach.ui.NavGraphs
+import dev.prince.ripplereach.ui.appCurrentDestinationAsState
+import dev.prince.ripplereach.ui.bottomnav.BottomBar
+import dev.prince.ripplereach.ui.startAppDestination
 import dev.prince.ripplereach.ui.theme.RippleReachTheme
 import dev.prince.ripplereach.util.LocalSnackbar
+import dev.prince.ripplereach.util.shouldShowBottomBar
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -30,8 +35,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             RippleReachTheme {
 
+                ScaffoldDefaults.contentWindowInsets
                 val engine = rememberNavHostEngine()
                 val navController = engine.rememberNavController()
+                val destination = navController.appCurrentDestinationAsState().value
+                    ?: NavGraphs.root.startRoute.startAppDestination
 
                 val snackbarHostState = remember { SnackbarHostState() }
                 val scope = rememberCoroutineScope()
@@ -41,9 +49,13 @@ class MainActivity : ComponentActivity() {
                         snackbarHostState.showSnackbar(message)
                     }
                 }
-
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        if (destination.shouldShowBottomBar()) {
+                            BottomBar(navController)
+                        }
+                    },
                     snackbarHost = {
                         SnackbarHost(snackbarHostState)
                     }
@@ -53,7 +65,8 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Surface(color = MaterialTheme.colorScheme.background) {
                             DestinationsNavHost(
-                                modifier = Modifier.padding(contentPadding),
+                                modifier = Modifier
+                                    .fillMaxSize().padding(contentPadding),
                                 navGraph = NavGraphs.root,
                                 navController = navController,
                                 engine = engine

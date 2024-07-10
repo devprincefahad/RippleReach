@@ -1,13 +1,16 @@
 package dev.prince.ripplereach.network
 
 import dev.prince.ripplereach.data.CategoryResponse
+import dev.prince.ripplereach.data.CommunityDetailResponse
 import dev.prince.ripplereach.data.LoginRequestBody
 import dev.prince.ripplereach.data.PostResponse
 import dev.prince.ripplereach.data.RegisterRequestBody
 import dev.prince.ripplereach.data.ResponseData
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -31,7 +34,7 @@ interface ApiService {
         @Query("offset") offset: Int
     ): CategoryResponse
 
-    @GET("/api/posts")
+    @GET("posts")
     suspend fun getPosts(
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
@@ -39,4 +42,13 @@ interface ApiService {
         //@Query("search") search: String
     ): PostResponse
 
+    @GET("posts/communities/{communityId}")
+    suspend fun getPostsByCommunityId(
+        @Header("Authorization") authToken: String?,
+        @Path("communityId") communityId: Int,
+        @Query("limit") limit: Int = 10,
+        @Query("offset") offset: Int = 0,
+        @Query("sort_by") sortBy: String = "createdAt,desc",
+        @Query("search") searchQuery: String? = "null"
+    ): CommunityDetailResponse
 }

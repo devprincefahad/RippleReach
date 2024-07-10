@@ -26,30 +26,30 @@ data class CategoryContent(
     val communities: List<Community>
 )
 
-data class Community(
-    @SerializedName("id")
-    val id: Int,
-    @SerializedName("name")
-    val name: String,
-    @SerializedName("description")
-    val description: String,
-    @SerializedName("imageUrl")
-    val imageUrl: String,
-    @SerializedName("createdAt")
-    val createdAt: String,
-    @SerializedName("updatedAt")
-    val updatedAt: String,
-    @SerializedName("slug")
-    val slug: String
-)
+//data class Community(
+//    @SerializedName("id")
+//    val id: Int,
+//    @SerializedName("name")
+//    val name: String,
+//    @SerializedName("description")
+//    val description: String,
+//    @SerializedName("imageUrl")
+//    val imageUrl: String,
+//    @SerializedName("createdAt")
+//    val createdAt: String,
+//    @SerializedName("updatedAt")
+//    val updatedAt: String,
+//    @SerializedName("slug")
+//    val slug: String
+//)
 
-data class Page(
-    @SerializedName("size")
-    val size: Int,
-    @SerializedName("number")
-    val number: Int,
-    @SerializedName("totalElements")
-    val totalElements: Int,
-    @SerializedName("totalPages")
-    val totalPages: Int
-)
+//data class Page(
+//    @SerializedName("size")
+//    val size: Int,
+//    @SerializedName("number")
+//    val number: Int,
+//    @SerializedName("totalElements")
+//    val totalElements: Int,
+//    @SerializedName("totalPages")
+//    val totalPages: Int
+//)

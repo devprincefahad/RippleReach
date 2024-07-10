@@ -123,8 +123,7 @@ class RegisterViewModel @Inject constructor(
             _isLoading.value = true
             try {
                 val response = api.register(requestBody = requestBody)
-//                _responseData.value =  Resource.Success(response)
-                saveUserInfo(response)
+                saveUserInfo(response, response.auth.token)
                 delay(2000)
                 navigateToHome.tryEmit(Unit)
                 Log.d("api-block", "$response")
@@ -146,17 +145,16 @@ class RegisterViewModel @Inject constructor(
 
         Log.d(
             "api-block",
-            "from viewwmodel:- ${requestBody.phone} ${requestBody.idToken}"
+            "from viewwmodel:- ${requestBody.phone} idToken:- ${requestBody.idToken}"
         )
 
         viewModelScope.launch {
             try {
                 val response = api.login(requestBody = requestBody)
-                saveUserInfo(response)
-//                _responseData.value =  Resource.Success(response)
+                saveUserInfo(response, response.auth.token)
                 Log.d(
                     "api-block",
-                    "response from viewwmodel:- ${response}"
+                    "response from viewwmodel token:- ${response.auth.token}"
                 )
                 navigateToHome.tryEmit(Unit)
             } catch (e: HttpException) {
@@ -172,8 +170,9 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private fun saveUserInfo(response: ResponseData) {
+    private fun saveUserInfo(response: ResponseData, idToken: String) {
         prefs.response = response
+        prefs.saveIdToken(idToken)
     }
 
     fun sendOtp(activity: ComponentActivity) {

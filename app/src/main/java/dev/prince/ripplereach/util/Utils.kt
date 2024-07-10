@@ -1,11 +1,25 @@
 package dev.prince.ripplereach.util
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.view.WindowManager
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.platform.LocalContext
+import dev.prince.ripplereach.ui.destinations.ChooseNameScreenDestination
+import dev.prince.ripplereach.ui.destinations.ChooseProfessionDestination
+import dev.prince.ripplereach.ui.destinations.ChooseUniversityDestination
+import dev.prince.ripplereach.ui.destinations.ChooseWorkPlaceDestination
+import dev.prince.ripplereach.ui.destinations.CommunityScreenDestination
+import dev.prince.ripplereach.ui.destinations.Destination
+import dev.prince.ripplereach.ui.destinations.OTPVerifyScreenDestination
+import dev.prince.ripplereach.ui.destinations.PhoneAuthScreenDestination
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
@@ -84,3 +98,28 @@ fun <T> oneShotFlow() = MutableSharedFlow<T>(
 )
 
 val LocalSnackbar = compositionLocalOf<(String) -> Unit> { { } }
+
+fun Destination.shouldShowBottomBar(): Boolean {
+
+    return (this !in listOf(
+        ChooseNameScreenDestination,
+        ChooseProfessionDestination,
+        ChooseUniversityDestination,
+        ChooseWorkPlaceDestination,
+        OTPVerifyScreenDestination,
+        PhoneAuthScreenDestination,
+        CommunityScreenDestination
+    ))
+}
+
+
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
+fun Modifier.clickWithoutRipple(
+    onClick: () -> Unit
+): Modifier = composed {
+    clickable(
+        indication = null,
+        interactionSource = remember { MutableInteractionSource() }) {
+        onClick()
+    }
+}

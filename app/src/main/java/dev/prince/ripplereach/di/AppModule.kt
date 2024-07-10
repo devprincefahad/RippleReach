@@ -8,6 +8,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
 import dev.prince.ripplereach.util.BASE_URL
 import okhttp3.OkHttpClient
@@ -36,9 +37,18 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(interceptor: HttpLoggingInterceptor): OkHttpClient = OkHttpClient
+    fun provideOkHttpClient(
+        interceptor: HttpLoggingInterceptor,
+        pref: SharedPrefHelper
+    ): OkHttpClient = OkHttpClient
         .Builder()
         .addInterceptor(interceptor)
+//        .addInterceptor {
+//            val request = it.request().newBuilder()
+//                .addHeader("Authorization", "Bearer ${pref.getToken()}")
+//                .build()
+//            it.proceed(request)
+//        }
         .connectTimeout(60, TimeUnit.SECONDS)
         .writeTimeout(120, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)

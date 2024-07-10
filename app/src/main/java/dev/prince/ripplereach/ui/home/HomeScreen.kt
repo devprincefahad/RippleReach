@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,9 +43,11 @@ import dev.prince.ripplereach.R
 import dev.prince.ripplereach.data.CategoryContent
 import dev.prince.ripplereach.data.Community
 import dev.prince.ripplereach.data.Post
+import dev.prince.ripplereach.ui.destinations.CommunityScreenDestination
 import dev.prince.ripplereach.ui.destinations.PhoneAuthScreenDestination
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
+import dev.prince.ripplereach.util.clickWithoutRipple
 
 @Destination(start = true)
 @Composable
@@ -63,7 +66,7 @@ fun HomeScreen(
     if (!viewModel.isUserLoggedIn()) {
         navigator.navigate(PhoneAuthScreenDestination)
     } else {
-        HomeScreenContent()
+        HomeScreenContent(navigator)
     }
 
     BackHandler {
@@ -74,6 +77,7 @@ fun HomeScreen(
 
 @Composable
 fun HomeScreenContent(
+    navigator: DestinationsNavigator,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
 
@@ -97,7 +101,7 @@ fun HomeScreenContent(
             )
         )
 
-        CategoriesList(categories)
+        CategoriesList(navigator, categories)
 
         PostList(posts = posts)
 
@@ -192,7 +196,10 @@ fun PostList(posts: List<Post>) {
 }
 
 @Composable
-fun CategoriesList(categories: List<CategoryContent>) {
+fun CategoriesList(
+    navigator: DestinationsNavigator,
+    categories: List<CategoryContent>
+) {
 
     val randomCommunities = categories.flatMap { it.communities }.shuffled().take(6)
 
@@ -207,7 +214,7 @@ fun CategoriesList(categories: List<CategoryContent>) {
 
         items(randomCommunities.size) { index ->
             val community = randomCommunities[index]
-            CommunityItem(community = community)
+            CommunityItem(navigator, community = community)
         }
         item {
             AllCategoryItem()
@@ -216,16 +223,22 @@ fun CategoriesList(categories: List<CategoryContent>) {
 }
 
 @Composable
-fun CommunityItem(community: Community) {
+fun CommunityItem(
+    navigator: DestinationsNavigator,
+    community: Community
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .padding(horizontal = 12.dp)
             .width(68.dp)
+            .clickWithoutRipple {
+                navigator.navigate(CommunityScreenDestination(community.id))
+            }
     ) {
 
         val imageUrl = community.imageUrl.let {
-            "https://ripplereach-0-0-1-snapshot.onrender.com/$it"
+            "https://ripplereach-0-0-1-snapshot.onrender.com$it"
         }
 
         AsyncImage(
