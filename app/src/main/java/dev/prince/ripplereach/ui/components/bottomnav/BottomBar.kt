@@ -1,4 +1,4 @@
-package dev.prince.ripplereach.ui.bottomnav
+package dev.prince.ripplereach.ui.components.bottomnav
 
 import android.annotation.SuppressLint
 import androidx.compose.material3.Icon

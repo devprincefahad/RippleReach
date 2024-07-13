@@ -20,7 +20,7 @@ import com.ramcosta.composedestinations.rememberNavHostEngine
 import dagger.hilt.android.AndroidEntryPoint
 import dev.prince.ripplereach.ui.NavGraphs
 import dev.prince.ripplereach.ui.appCurrentDestinationAsState
-import dev.prince.ripplereach.ui.bottomnav.BottomBar
+import dev.prince.ripplereach.ui.components.bottomnav.BottomBar
 import dev.prince.ripplereach.ui.startAppDestination
 import dev.prince.ripplereach.ui.theme.RippleReachTheme
 import dev.prince.ripplereach.util.LocalSnackbar

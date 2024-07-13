@@ -1,4 +1,4 @@
-package dev.prince.ripplereach.ui.bottomnav
+package dev.prince.ripplereach.ui.components.bottomnav
 
 import androidx.annotation.StringRes
 import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
