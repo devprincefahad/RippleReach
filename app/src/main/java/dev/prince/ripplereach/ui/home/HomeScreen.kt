@@ -201,7 +201,7 @@ fun CategoriesList(
     categories: List<CategoryContent>
 ) {
 
-    val randomCommunities = categories.flatMap { it.communities }.shuffled().take(6)
+    val randomCommunities = categories.flatMap { it.communities }.shuffled().take(4)
 
     Log.d("HomeScreen", "randomCommunities:- $randomCommunities")
 
@@ -216,9 +216,9 @@ fun CategoriesList(
             val community = randomCommunities[index]
             CommunityItem(navigator, community = community)
         }
-        item {
-            AllCategoryItem()
-        }
+//        item {
+//            AllCategoryItem()
+//        }
     }
 }
 

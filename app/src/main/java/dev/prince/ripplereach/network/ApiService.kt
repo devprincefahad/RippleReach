@@ -41,6 +41,7 @@ interface ApiService {
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("sort_by") sortBy: String,
+        @Query("search") searchQuery: String? = null
     ): PostResponse
 
     @POST("auth/refresh/token")

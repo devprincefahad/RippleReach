@@ -68,11 +68,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
            try{
                val response = api.getPosts(
-                   limit = 10,
+                   limit = 20,
                    offset = 0,
                    sortBy = "createdAt,desc"
                )
                _posts.value = response.content
+               Log.d("api-block","get all posts - $response")
            } catch (e: HttpException) {
                showSnackBarMsg("HTTP: ${e.message}")
            } catch (e: Exception) {
