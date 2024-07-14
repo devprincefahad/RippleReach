@@ -5,6 +5,7 @@ import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 import dev.prince.ripplereach.R
 import dev.prince.ripplereach.ui.destinations.HomeScreenDestination
 import dev.prince.ripplereach.ui.destinations.NotificationScreenDestination
+import dev.prince.ripplereach.ui.destinations.ProfileScreenDestination
 import dev.prince.ripplereach.ui.destinations.SearchScreenDestination
 
 enum class BottomBarDestination(
@@ -18,5 +19,6 @@ enum class BottomBarDestination(
         R.drawable.icon_search,
         R.string.search
     ),
-    Notifications(NotificationScreenDestination, R.drawable.ic_notification, R.string.notification)
+    Notifications(NotificationScreenDestination, R.drawable.ic_notification, R.string.notification),
+    Profile(ProfileScreenDestination,R.drawable.ic_profile,R.string.profile)
 }
