@@ -103,7 +103,7 @@ fun SearchScreen(
             }
         } else if (viewModel.searchQuery.isNotEmpty()) {
             items(searchResults) { post ->
-                PostItem(post = post)
+                PostItem(post = post, navigator = navigator, truncateContent = true)
             }
         } else {
             item {
@@ -180,7 +180,7 @@ fun CommunityCard(
         Column(
             modifier = Modifier
                 .padding(8.dp)
-        ){
+        ) {
 
             val imageUrl = community.imageUrl.let {
                 "https://ripplereach-0-0-1-snapshot.onrender.com$it"

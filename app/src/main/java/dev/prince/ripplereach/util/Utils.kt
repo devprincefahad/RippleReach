@@ -20,6 +20,7 @@ import dev.prince.ripplereach.ui.destinations.CommunityScreenDestination
 import dev.prince.ripplereach.ui.destinations.Destination
 import dev.prince.ripplereach.ui.destinations.OTPVerifyScreenDestination
 import dev.prince.ripplereach.ui.destinations.PhoneAuthScreenDestination
+import dev.prince.ripplereach.ui.destinations.PostDetailScreenDestination
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
@@ -108,7 +109,8 @@ fun Destination.shouldShowBottomBar(): Boolean {
         ChooseWorkPlaceDestination,
         OTPVerifyScreenDestination,
         PhoneAuthScreenDestination,
-        CommunityScreenDestination
+        CommunityScreenDestination,
+        PostDetailScreenDestination
     ))
 }
 

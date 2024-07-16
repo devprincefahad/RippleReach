@@ -18,7 +18,8 @@ data class Post(
     @SerializedName("totalComments") val totalComments: Int,
     @SerializedName("link") val link: String?,
     @SerializedName("createdAt") val createdAt: String,
-    @SerializedName("updatedAt") val updatedAt: String
+    @SerializedName("updatedAt") val updatedAt: String,
+    @SerializedName("upvotedByUser") val upvotedByUser: Boolean
 )
 
 data class Author(

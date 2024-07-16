@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.prince.ripplereach.data.CategoryContent
 import dev.prince.ripplereach.data.Community
 import dev.prince.ripplereach.data.Post
+import dev.prince.ripplereach.data.PostExchangeTokenRequest
 import dev.prince.ripplereach.data.User
 import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
@@ -40,6 +41,8 @@ class HomeViewModel @Inject constructor(
 
     val messages = oneShotFlow<String>()
 
+    val userId = prefs.response?.user?.userId
+
     init {
         fetchCategories()
         fetchAllPosts()
@@ -66,21 +69,82 @@ class HomeViewModel @Inject constructor(
 
     private fun fetchAllPosts() {
         viewModelScope.launch {
-           try{
-               val response = api.getPosts(
-                   limit = 20,
-                   offset = 0,
-                   sortBy = "createdAt,desc"
-               )
-               _posts.value = response.content
-               Log.d("api-block","get all posts - $response")
-           } catch (e: HttpException) {
-               showSnackBarMsg("HTTP: ${e.message}")
-           } catch (e: Exception) {
-               showSnackBarMsg("Exception: ${e.message}")
-               Log.d("api-block", "${e.message}")
-           }
+            try {
+                val token = prefs.response?.auth?.token
+                if (token != null) {
+                    val response = api.getPosts(
+                        authToken = "Bearer $token",
+                        limit = 20,
+                        offset = 0,
+                        sortBy = "createdAt,desc"
+                    )
+                    _posts.value = response.content
+                    Log.d("api-block",posts.value.toString())
+                } else {
+                    Log.e("api-block", "Token is null")
+                }
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    refreshToken()
+                    fetchAllPosts()
+                }
+                showSnackBarMsg("HTTP: ${e.message}")
+            } catch (e: Exception) {
+                showSnackBarMsg("Exception: ${e.message}")
+                Log.d("api-block", "${e.message}")
+            }
         }
     }
 
+    fun upvotePost(postId: String, userId: String) {
+        val token = prefs.response?.auth?.token
+        viewModelScope.launch {
+            try {
+                if (token != null) {
+                    api.upvotePost("Bearer $token", postId, userId)
+                } else {
+                    Log.e("api-block", "Token is null")
+                }
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    refreshToken()
+                    upvotePost(postId, userId)
+                }
+                showSnackBarMsg("HTTP: ${e.message}")
+            } catch (e: Exception) {
+                showSnackBarMsg("Exception: ${e.message}")
+                Log.d("api-block", "${e.message}")
+            }
+        }
+    }
+
+    fun deleteUpvote(postId: String, userId: String) {
+        val token = prefs.response?.auth?.token
+        viewModelScope.launch {
+            try {
+                if (token != null) {
+                    api.deleteUpvote("Bearer $token", postId, userId)
+                } else {
+                    Log.e("api-block", "Token is null")
+                }
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    refreshToken()
+                    deleteUpvote(postId, userId)
+                }
+                showSnackBarMsg("HTTP: ${e.message}")
+            } catch (e: Exception) {
+                showSnackBarMsg("Exception: ${e.message}")
+                Log.d("api-block", "${e.message}")
+            }
+        }
+    }
+
+    private suspend fun refreshToken() {
+        prefs.response?.auth.let {
+            val request = PostExchangeTokenRequest(it?.refreshToken ?: "", it?.username ?: "")
+            val authResponse = api.exchangeToken(request)
+            prefs.response = prefs.response?.copy(auth = authResponse)
+        } ?: throw IllegalStateException("Auth is null")
+    }
 }

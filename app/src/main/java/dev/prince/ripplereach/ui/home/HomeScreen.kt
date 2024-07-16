@@ -19,11 +19,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +51,7 @@ import dev.prince.ripplereach.data.Community
 import dev.prince.ripplereach.data.Post
 import dev.prince.ripplereach.ui.destinations.CommunityScreenDestination
 import dev.prince.ripplereach.ui.destinations.PhoneAuthScreenDestination
+import dev.prince.ripplereach.ui.destinations.PostDetailScreenDestination
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
 import dev.prince.ripplereach.util.clickWithoutRipple
@@ -103,94 +110,189 @@ fun HomeScreenContent(
 
         CategoriesList(navigator, categories)
 
-        PostList(posts = posts)
+        PostList(posts = posts, navigator = navigator)
 
     }
 }
 
 @Composable
-fun PostItem(post: Post) {
-    Surface(
+fun PostItem(
+    viewModel: HomeViewModel = hiltViewModel(),
+    navigator: DestinationsNavigator,
+    post: Post,
+    truncateContent: Boolean
+) {
+    var isUpvoted by remember { mutableStateOf(false) }
+    var upvotes by remember { mutableIntStateOf(post.totalUpvotes) }
+
+    Column(
         modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth(),
-        shadowElevation = 4.dp
+            .padding(16.dp)
+            .fillMaxWidth()
+            .clickWithoutRipple {
+                navigator.navigate(PostDetailScreenDestination(post.id))
+            }
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            val imageUrl =
+                "https://ripplereach-0-0-1-snapshot.onrender.com${post.author.avatar}"
 
-            Text(
-                text = post.title,
-                color = Color.Black,
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontFamily = quickStandFamily
-                )
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = post.author.username,
+                modifier = Modifier
+                    .size(40.dp)
+                    .aspectRatio(1f),
+                contentScale = ContentScale.Crop
             )
 
-            Text(
-                text = post.content,
-                color = Color.Black,
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontFamily = quickStandFamily
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column {
+                Text(
+                    text = post.author.username,
+                    color = Color.Black,
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = quickStandFamily
+                    )
                 )
+
+                Text(
+                    text = post.postCommunity.name,
+                    color = Color.Gray,
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Light,
+                        fontFamily = quickStandFamily
+                    )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = post.title,
+            color = Color.Black,
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = quickStandFamily
             )
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = if (truncateContent) post.content.take(150) + "..." else post.content,
+            color = Color.Black,
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = quickStandFamily
+            ),
+            maxLines = if (truncateContent) 4 else Int.MAX_VALUE,
+            overflow = if (truncateContent) TextOverflow.Ellipsis else TextOverflow.Clip,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = {
+                        if (isUpvoted) {
+                            viewModel.deleteUpvote(
+                                post.id.toString(),
+                                viewModel.userId.toString()
+                            )
+                            upvotes -= 1
+                        } else {
+                            viewModel.upvotePost(
+                                post.id.toString(),
+                                viewModel.userId.toString()
+                            )
+                            upvotes += 1
+                        }
+                        isUpvoted = !isUpvoted
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_upvote),
+                        contentDescription = "Upvote",
+                        tint = if (isUpvoted) Color.Blue else Color.Gray
+                    )
+                }
+                Text(
+                    text = upvotes.toString(),
+                    color = Color.Gray,
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = quickStandFamily
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(
+                    onClick = {
 
-                val imageUrl =
-                    "https://ripplereach-0-0-1-snapshot.onrender.com${post.author.avatar}"
-
-                AsyncImage(
-                    model = imageUrl,
-                    contentDescription = post.author.username,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .aspectRatio(1f),
-                    contentScale = ContentScale.Crop
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Column {
-                    Text(
-                        text = post.author.username,
-                        color = Color.Black,
-                        style = TextStyle(
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = quickStandFamily
-                        )
-                    )
-
-                    post.postCommunity?.let {
-                        Text(
-                            text = it.name,
-                            color = Color.Black,
-                            style = TextStyle(
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = quickStandFamily
-                            )
-                        )
                     }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_comment),
+                        contentDescription = "Comments",
+                        tint = Color.Gray
+                    )
                 }
+                Text(
+                    text = post.totalComments.toString(),
+                    color = Color.Gray,
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = quickStandFamily
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            IconButton(
+                onClick = {
+
+                }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_share),
+                    contentDescription = "Share",
+                    tint = Color.Gray
+                )
             }
         }
     }
 }
 
 @Composable
-fun PostList(posts: List<Post>) {
+fun PostList(posts: List<Post>, navigator: DestinationsNavigator) {
     LazyColumn {
         items(posts) { post ->
-            PostItem(post = post)
+            PostItem(post = post, navigator = navigator, truncateContent = true)
         }
     }
 }

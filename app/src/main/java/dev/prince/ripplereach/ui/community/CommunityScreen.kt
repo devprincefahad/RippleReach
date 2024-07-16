@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.prince.ripplereach.ui.home.PostItem
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 
@@ -38,7 +39,8 @@ import dev.prince.ripplereach.ui.theme.quickStandFamily
 @Composable
 fun CommunityScreen(
     communityId: Int,
-    viewModel: CommunityViewModel = hiltViewModel()
+    viewModel: CommunityViewModel = hiltViewModel(),
+    navigator: DestinationsNavigator
 ) {
 
     val communityDetail = viewModel.communityDetails.collectAsState()
@@ -160,7 +162,7 @@ fun CommunityScreen(
                     .fillMaxSize()
             ) {
                 items(posts) { post ->
-                    PostItem(post = post)
+                    PostItem(post = post, navigator = navigator, truncateContent = true)
                 }
             }
         }

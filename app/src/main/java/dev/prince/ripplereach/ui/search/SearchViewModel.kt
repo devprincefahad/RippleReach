@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.prince.ripplereach.data.CategoryContent
 import dev.prince.ripplereach.data.Post
+import dev.prince.ripplereach.data.PostExchangeTokenRequest
 import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
 import kotlinx.coroutines.Job
@@ -59,9 +60,26 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val response =
-                    api.getPosts(limit = 20, offset = 0, sortBy = "date", searchQuery = searchQuery)
-                _searchResults.value = response.content
+                val token = pref.response?.auth?.token
+                if (token != null) {
+                    val response =
+                        api.getPosts(
+                            authToken = "Bearer $token",
+                            limit = 20,
+                            offset = 0,
+                            sortBy = "date",
+                            searchQuery = searchQuery
+                        )
+                    _searchResults.value = response.content
+                    Log.d("api-block", searchResults.value.toString())
+                } else {
+                    Log.e("api-block", "Token is null")
+                }
+            }catch (e: HttpException){
+                if (e.code() == 401) {
+                    refreshToken()
+                    fetchPosts()
+                }
             } catch (e: Exception) {
                 _searchResults.value = emptyList()
             }
@@ -84,4 +102,11 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    private suspend fun refreshToken() {
+        pref.response?.auth.let {
+            val request = PostExchangeTokenRequest(it?.refreshToken ?: "", it?.username ?: "")
+            val authResponse = api.exchangeToken(request)
+            pref.response = pref.response?.copy(auth = authResponse)
+        } ?: throw IllegalStateException("Auth is null")
+    }
 }
