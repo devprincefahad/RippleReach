@@ -14,6 +14,8 @@ import dev.prince.ripplereach.data.User
 import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
 import dev.prince.ripplereach.util.oneShotFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -45,11 +47,20 @@ class HomeViewModel @Inject constructor(
 
     init {
         fetchCategories()
-        fetchAllPosts()
+        startPolling()
     }
 
     fun showSnackBarMsg(msg: String) {
         messages.tryEmit(msg)
+    }
+
+    private fun startPolling() {
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                fetchAllPosts()
+                delay(500)
+            }
+        }
     }
 
     private fun fetchCategories() {

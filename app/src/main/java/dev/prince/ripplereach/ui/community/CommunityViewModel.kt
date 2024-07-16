@@ -8,6 +8,8 @@ import dev.prince.ripplereach.data.CommunityDetailResponse
 import dev.prince.ripplereach.data.PostExchangeTokenRequest
 import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -22,6 +24,21 @@ class CommunityViewModel @Inject constructor(
 
     private val _communityDetails = MutableStateFlow<CommunityDetailResponse?>(null)
     val communityDetails: StateFlow<CommunityDetailResponse?> = _communityDetails
+
+    init {
+        startPolling()
+    }
+
+    private fun startPolling() {
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                delay(1000)
+                _communityDetails.value?.community?.id?.let { communityId ->
+                    fetchCommunityDetails(communityId)
+                }
+            }
+        }
+    }
 
     fun fetchCommunityDetails(communityId: Int) {
         viewModelScope.launch {

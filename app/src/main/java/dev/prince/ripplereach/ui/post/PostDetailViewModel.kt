@@ -14,6 +14,8 @@ import dev.prince.ripplereach.data.Post
 import dev.prince.ripplereach.data.PostExchangeTokenRequest
 import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -33,6 +35,22 @@ class PostDetailViewModel @Inject constructor(
     val comments: StateFlow<List<Comment>> = _comments
 
     val user = prefs.response?.user
+
+    init {
+        startPolling()
+    }
+
+    private fun startPolling() {
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                delay(1000)
+                _post.value?.id?.let { postId ->
+                    getPost(postId)
+                    getCommentByPostId(postId)
+                }
+            }
+        }
+    }
 
     fun getPost(postId: Int) {
         viewModelScope.launch {
