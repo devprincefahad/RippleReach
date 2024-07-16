@@ -1,10 +1,15 @@
 package dev.prince.ripplereach.ui.post
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.prince.ripplereach.data.Comment
+import dev.prince.ripplereach.data.CommentRequest
 import dev.prince.ripplereach.data.Post
 import dev.prince.ripplereach.data.PostExchangeTokenRequest
 import dev.prince.ripplereach.local.SharedPrefHelper
@@ -27,7 +32,7 @@ class PostDetailViewModel @Inject constructor(
     private val _comments = MutableStateFlow<List<Comment>>(emptyList())
     val comments: StateFlow<List<Comment>> = _comments
 
-    val userImage = prefs.response?.user?.avatar
+    val user = prefs.response?.user
 
     fun getPost(postId: Int) {
         viewModelScope.launch {
@@ -80,6 +85,89 @@ class PostDetailViewModel @Inject constructor(
             }
         }
 
+    }
+
+    fun postComment(content: String, postId: Int) {
+        val userId = prefs.response?.user?.userId
+        viewModelScope.launch {
+            try {
+                val token = prefs.response?.auth?.token
+                if (token != null) {
+                    val requestBody = CommentRequest(content, postId, userId!!.toInt())
+                    val response = api.postComment(
+                        authToken = "Bearer $token",
+                        commentRequest = requestBody
+                    )
+                    Log.d("PostViewModel", response.toString())
+                } else {
+                    Log.e("PostViewModel", "Token is null")
+                }
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    refreshToken()
+                    postComment(content, postId)
+                }
+                Log.e("PostViewModel", "HTTP Exception: ${e.message}")
+            } catch (e: Exception) {
+                Log.e("PostViewModel", "Exception: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteComment(commentId: Int) {
+        viewModelScope.launch {
+            val token = prefs.response?.auth?.token
+            try {
+                if (token != null) {
+                    api.deleteComment(
+                        authToken = "Bearer $token",
+                        commentId = commentId
+                    )
+                    _comments.value = _comments.value.filter { it.id != commentId }
+                    Log.d("PostViewModel", "comment deleted")
+                } else {
+                    Log.e("PostViewModel", "Token is null")
+                }
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    refreshToken()
+                    deleteComment(commentId)
+                }
+                Log.e("PostViewModel", "HTTP Exception: ${e.message}")
+            } catch (e: Exception) {
+                Log.e("PostViewModel", "Exception: ${e.message}")
+            }
+        }
+    }
+
+    fun updateComment(newComment: String, commentId: Int) {
+        viewModelScope.launch {
+            val token = prefs.response?.auth?.token
+            try {
+                val trimmedText = newComment.trim()
+                if (token != null) {
+                    val updatedComment = api.updateComment(
+                        authToken = "Bearer $token",
+                        commentId,
+                        trimmedText
+                    )
+                    _comments.value = _comments.value.map {
+                        (if (it.id == commentId) updatedComment else it) as Comment
+                    }
+                    Log.d("PostViewModel", "Comment updated")
+                } else {
+                    Log.e("PostViewModel", "Token is null")
+                }
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    refreshToken()
+                    updateComment(newComment, commentId)
+                }
+                Log.e("PostViewModel", "HTTP Exception: ${e.message}")
+            } catch (e: Exception) {
+                Log.e("PostViewModel", "Exception: ${e.message}")
+            }
+        }
     }
 
     private suspend fun refreshToken() {

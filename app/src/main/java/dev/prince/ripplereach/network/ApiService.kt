@@ -2,6 +2,7 @@ package dev.prince.ripplereach.network
 
 import dev.prince.ripplereach.data.Auth
 import dev.prince.ripplereach.data.CategoryResponse
+import dev.prince.ripplereach.data.CommentRequest
 import dev.prince.ripplereach.data.CommentResponse
 import dev.prince.ripplereach.data.CommunityDetailResponse
 import dev.prince.ripplereach.data.LoginRequestBody
@@ -15,6 +16,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -91,5 +93,25 @@ interface ApiService {
         @Query("offset") offset: Int = 0,
         @Query("sort_by") sortBy: String = "createdAt,desc"
     ): CommentResponse
+
+    @POST("comments")
+    suspend fun postComment(
+        @Header("Authorization") authToken: String?,
+        @Body commentRequest: CommentRequest
+    )
+
+    @DELETE("comments/{commentId}")
+    suspend fun deleteComment(
+        @Header("Authorization") authToken: String?,
+        @Path("commentId") commentId: Int
+    )
+
+    @PUT("comments/{commentId}")
+    suspend fun updateComment(
+        @Header("Authorization") authToken: String?,
+        @Path("commentId") commentId: Int,
+        @Body newContent: String
+    )
+
 
 }
