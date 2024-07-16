@@ -32,7 +32,7 @@ class CommunityViewModel @Inject constructor(
     private fun startPolling() {
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                delay(1000)
+                delay(2000)
                 _communityDetails.value?.community?.id?.let { communityId ->
                     fetchCommunityDetails(communityId)
                 }
