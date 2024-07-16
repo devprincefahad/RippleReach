@@ -43,11 +43,11 @@ class PostDetailViewModel @Inject constructor(
     private fun startPolling() {
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                delay(2000)
                 _post.value?.id?.let { postId ->
                     getPost(postId)
                     getCommentByPostId(postId)
                 }
+                delay(2000)
             }
         }
     }
