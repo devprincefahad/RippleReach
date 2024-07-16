@@ -122,7 +122,8 @@ fun PostItem(
     post: Post,
     truncateContent: Boolean
 ) {
-    var isUpvoted by remember { mutableStateOf(false) }
+//    val upvotedPosts by viewModel.upvotedPosts.collectAsState()
+//    val isUpvoted = upvotedPosts.contains(post.id.toString())
     var upvotes by remember { mutableIntStateOf(post.totalUpvotes) }
 
     Column(
@@ -211,26 +212,24 @@ fun PostItem(
             ) {
                 IconButton(
                     onClick = {
-                        if (isUpvoted) {
-                            viewModel.deleteUpvote(
-                                post.id.toString(),
-                                viewModel.userId.toString()
-                            )
-                            upvotes -= 1
+                        if (!post.upvotedByUser) {
+                            viewModel.upvotePost(post.id.toString(), viewModel.userId.toString())
                         } else {
-                            viewModel.upvotePost(
-                                post.id.toString(),
-                                viewModel.userId.toString()
-                            )
-                            upvotes += 1
+                            viewModel.deleteUpvote(post.id.toString(), viewModel.userId.toString())
                         }
-                        isUpvoted = !isUpvoted
+//                        if (isUpvoted) {
+//                            viewModel.deleteUpvote(post.id.toString(), viewModel.userId.toString())
+//                            upvotes -= 1
+//                        } else {
+//                            viewModel.upvotePost(post.id.toString(), viewModel.userId.toString())
+//                            upvotes += 1
+//                        }
                     }
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_upvote),
                         contentDescription = "Upvote",
-                        tint = if (isUpvoted) Color.Blue else Color.Gray
+                        tint = if (post.upvotedByUser) Color.Blue else Color.Gray
                     )
                 }
                 Text(
@@ -251,7 +250,7 @@ fun PostItem(
             ) {
                 IconButton(
                     onClick = {
-
+                        navigator.navigate(PostDetailScreenDestination(post.id))
                     }
                 ) {
                     Icon(

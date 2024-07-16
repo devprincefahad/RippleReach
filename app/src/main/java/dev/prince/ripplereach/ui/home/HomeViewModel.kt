@@ -58,7 +58,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
                 fetchAllPosts()
-                delay(500)
+                delay(2000)
             }
         }
     }
