@@ -17,6 +17,7 @@ import dev.prince.ripplereach.ui.destinations.ChooseProfessionDestination
 import dev.prince.ripplereach.ui.destinations.ChooseUniversityDestination
 import dev.prince.ripplereach.ui.destinations.ChooseWorkPlaceDestination
 import dev.prince.ripplereach.ui.destinations.CommunityScreenDestination
+import dev.prince.ripplereach.ui.destinations.CreatePostScreenDestination
 import dev.prince.ripplereach.ui.destinations.Destination
 import dev.prince.ripplereach.ui.destinations.OTPVerifyScreenDestination
 import dev.prince.ripplereach.ui.destinations.PhoneAuthScreenDestination
@@ -110,7 +111,8 @@ fun Destination.shouldShowBottomBar(): Boolean {
         OTPVerifyScreenDestination,
         PhoneAuthScreenDestination,
         CommunityScreenDestination,
-        PostDetailScreenDestination
+        PostDetailScreenDestination,
+        CreatePostScreenDestination
     ))
 }
 

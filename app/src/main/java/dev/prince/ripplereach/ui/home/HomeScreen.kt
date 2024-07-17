@@ -4,6 +4,9 @@ import android.graphics.Paint.Align
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -23,8 +26,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -36,10 +41,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -57,8 +67,10 @@ import dev.prince.ripplereach.data.CategoryContent
 import dev.prince.ripplereach.data.Community
 import dev.prince.ripplereach.data.Post
 import dev.prince.ripplereach.ui.destinations.CommunityScreenDestination
+import dev.prince.ripplereach.ui.destinations.CreatePostScreenDestination
 import dev.prince.ripplereach.ui.destinations.PhoneAuthScreenDestination
 import dev.prince.ripplereach.ui.destinations.PostDetailScreenDestination
+import dev.prince.ripplereach.ui.theme.Orange
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.ui.theme.rufinaFamily
 import dev.prince.ripplereach.util.clickWithoutRipple
@@ -104,58 +116,134 @@ fun HomeScreenContent(
     val pagerState = rememberPagerState {
         2
     }
+    val isVisible = rememberSaveable { mutableStateOf(true) }
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                // Hide FAB
+                if (available.y < -1) {
+                    isVisible.value = false
+                }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
+                // Show FAB
+                if (available.y > 1) {
+                    isVisible.value = true
+                }
 
-        Text(
-            modifier = Modifier
-                .padding(horizontal = 8.dp, vertical = 8.dp)
-                .fillMaxWidth(),
-            text = "Ripple Reach",
-            color = Color.Black,
-            style = TextStyle(
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = rufinaFamily
-            )
-        )
-
-        CategoriesList(navigator, categories)
-
-        TabRow(
-            modifier = Modifier.fillMaxWidth(),
-            selectedTabIndex = selectedTab) {
-            Tab(
-                selected = selectedTab == 0,
-                onClick = { selectedTab = 0 },
-                text = { Text("Popular") }
-            )
-            Tab(
-                selected = selectedTab == 1,
-                onClick = { selectedTab = 1 },
-                text = { Text("New") }
-            )
+                return Offset.Zero
+            }
         }
-        HorizontalPager(
+    }
+
+    Scaffold(
+        floatingActionButton = {
+            AnimatedVisibility(
+                visible = isVisible.value,
+                enter = slideInVertically(initialOffsetY = { it * 2 }),
+                exit = slideOutVertically(targetOffsetY = { it * 2 }),
+            ) {
+                ExtendedFloatingActionButton(
+                    containerColor = Orange,
+                    onClick = {
+                        navigator.navigate(CreatePostScreenDestination)
+                    },
+                    icon = {
+                        Icon(
+                            painterResource(id = R.drawable.ic_add),
+                            tint = Color.White,
+                            contentDescription = "Extended floating action button."
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = "Create Post",
+                            color = Color.White,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = quickStandFamily
+                            )
+                        )
+                    },
+                )
+            }
+        }
+    ) { innerPadding ->
+
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            state = pagerState
-        ) { page ->
-            val sortedPosts = when (selectedTab) {
-                0 -> posts.sortedByDescending { it.totalUpvotes }
-                1 -> posts.sortedByDescending { it.createdAt }
-                else -> posts
+                .fillMaxSize()
+                .padding(innerPadding)
+                .nestedScroll(nestedScrollConnection)
+        ) {
+
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
+                    .fillMaxWidth(),
+                text = "Ripple Reach",
+                color = Color.Black,
+                style = TextStyle(
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = rufinaFamily
+                )
+            )
+
+            CategoriesList(navigator, categories)
+
+            TabRow(
+                modifier = Modifier.fillMaxWidth(),
+                selectedTabIndex = selectedTab
+            ) {
+                Tab(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    text = {
+                        Text(
+                            text = "Top",
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = quickStandFamily
+                            )
+                        )
+                    }
+                )
+                Tab(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 },
+                    text = {
+                        Text(
+                            text = "Recent",
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = quickStandFamily
+                            )
+                        )
+                    }
+                )
+            }
+            HorizontalPager(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                state = pagerState
+            ) { page ->
+                val sortedPosts = when (selectedTab) {
+                    0 -> posts.sortedByDescending { it.totalUpvotes }
+                    1 -> posts.sortedByDescending { it.createdAt }
+                    else -> posts
+                }
+
+                PostList(posts = sortedPosts, navigator = navigator)
+
             }
 
-            PostList(posts = sortedPosts, navigator = navigator)
-
-        }
-
-        LaunchedEffect(pagerState.currentPage) {
-            selectedTab = pagerState.currentPage
+            LaunchedEffect(pagerState.currentPage) {
+                selectedTab = pagerState.currentPage
+            }
         }
     }
 }

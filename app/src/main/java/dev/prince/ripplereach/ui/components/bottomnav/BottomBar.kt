@@ -18,6 +18,7 @@ import dev.prince.ripplereach.ui.NavGraphs
 import dev.prince.ripplereach.ui.appCurrentDestinationAsState
 import dev.prince.ripplereach.ui.destinations.Destination
 import dev.prince.ripplereach.ui.startAppDestination
+import dev.prince.ripplereach.ui.theme.Orange
 
 
 @SuppressLint("RestrictedApi")
@@ -78,8 +79,8 @@ fun BottomBar(
                 },
                 label = { Text(stringResource(destination.label)) },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.Blue,
-                    indicatorColor = Color.Blue
+                    selectedIconColor = Orange,
+                    indicatorColor = Orange
                 )
             )
         }
