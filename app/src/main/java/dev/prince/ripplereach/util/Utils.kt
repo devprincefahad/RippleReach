@@ -17,6 +17,7 @@ import dev.prince.ripplereach.ui.destinations.ChooseProfessionDestination
 import dev.prince.ripplereach.ui.destinations.ChooseUniversityDestination
 import dev.prince.ripplereach.ui.destinations.ChooseWorkPlaceDestination
 import dev.prince.ripplereach.ui.destinations.CommunityScreenDestination
+import dev.prince.ripplereach.ui.destinations.CommunitySelectorDestination
 import dev.prince.ripplereach.ui.destinations.CreatePostScreenDestination
 import dev.prince.ripplereach.ui.destinations.Destination
 import dev.prince.ripplereach.ui.destinations.OTPVerifyScreenDestination
@@ -25,7 +26,10 @@ import dev.prince.ripplereach.ui.destinations.PostDetailScreenDestination
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-const val BASE_URL = "https://ripplereach-0-0-1-snapshot.onrender.com/api/"
+//const val BASE_URL = "https://ripplereach-0-0-1-snapshot.onrender.com/api/"
+// virtual device
+const val BASE_URL = "http://192.168.29.103:8080/api/"
+//const val BASE_URL = "http://127.0.0.1:8080/api/"
 
 val professions = listOf(
     "Software Engineer/Developer",
@@ -112,7 +116,8 @@ fun Destination.shouldShowBottomBar(): Boolean {
         PhoneAuthScreenDestination,
         CommunityScreenDestination,
         PostDetailScreenDestination,
-        CreatePostScreenDestination
+        CreatePostScreenDestination,
+        CommunitySelectorDestination
     ))
 }
 

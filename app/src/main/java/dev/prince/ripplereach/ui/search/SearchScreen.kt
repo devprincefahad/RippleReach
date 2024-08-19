@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import dev.prince.ripplereach.R
 import dev.prince.ripplereach.data.Community
 import dev.prince.ripplereach.ui.destinations.CommunityScreenDestination
@@ -42,7 +43,6 @@ import dev.prince.ripplereach.ui.home.PostItem
 import dev.prince.ripplereach.ui.theme.quickStandFamily
 import dev.prince.ripplereach.util.clickWithoutRipple
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
 fun SearchScreen(
@@ -50,6 +50,36 @@ fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel()
 ) {
 
+    SearchContent(viewModel, navigator) {
+        navigator.navigate(CommunityScreenDestination(it))
+    }
+}
+
+/**
+ * Returns the ID of the selected community
+ */
+@Destination
+@Composable
+fun CommunitySelector(
+    resultNavigator: ResultBackNavigator<Int>,
+    navigator: DestinationsNavigator,
+    viewModel: SearchViewModel = hiltViewModel()
+) {
+
+    SearchContent(viewModel, navigator, false) {
+        resultNavigator.navigateBack(it)
+    }
+
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun SearchContent(
+    viewModel: SearchViewModel,
+    navigator: DestinationsNavigator,
+    showSearchTextField: Boolean = true,
+    onCommunityClicked: (Int) -> Unit,
+) {
     val searchResults by viewModel.searchResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val categories by viewModel.categories.collectAsState()
@@ -60,7 +90,7 @@ fun SearchScreen(
             .fillMaxSize()
     ) {
         item {
-            OutlinedTextField(
+            if (showSearchTextField) OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = viewModel.searchQuery,
@@ -147,7 +177,7 @@ fun SearchScreen(
                                 modifier = Modifier
                                     .weight(1f)
                                     .padding(end = if (rowItems.indexOf(community) == 0) 8.dp else 0.dp),
-                                navigator = navigator
+                                onCommunityClicked = onCommunityClicked
                             )
                         }
                         if (rowItems.size == 1) {
@@ -166,12 +196,12 @@ fun SearchScreen(
 fun CommunityCard(
     community: Community,
     modifier: Modifier = Modifier,
-    navigator: DestinationsNavigator
+    onCommunityClicked: (Int) -> Unit,
 ) {
     Surface(
         modifier = modifier
             .clickWithoutRipple {
-                navigator.navigate(CommunityScreenDestination(community.id))
+                onCommunityClicked(community.id)
             }
             .padding(top = 12.dp, end = 12.dp),
         shadowElevation = 4.dp,
@@ -182,12 +212,12 @@ fun CommunityCard(
                 .padding(8.dp)
         ) {
 
-            val imageUrl = community.imageUrl.let {
-                "https://ripplereach-0-0-1-snapshot.onrender.com$it"
-            }
+//            val imageUrl = community.imageUrl.let {
+//                "https://ripplereach-0-0-1-snapshot.onrender.com$it"
+//            }
 
             AsyncImage(
-                model = imageUrl,
+                model = community.imageUrl,
                 contentDescription = community.name,
                 modifier = Modifier
                     .size(52.dp),

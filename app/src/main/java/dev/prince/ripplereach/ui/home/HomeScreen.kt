@@ -1,6 +1,5 @@
 package dev.prince.ripplereach.ui.home
 
-import android.graphics.Paint.Align
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -10,7 +9,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,16 +25,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -108,11 +109,24 @@ fun HomeScreenContent(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
 
-    val posts by viewModel.posts.collectAsState()
+//    val posts by viewModel.posts.collectAsState()
     val categories by viewModel.categories.collectAsState()
-    var selectedTab by remember { mutableIntStateOf(0) }
+    var selectedTab by remember {
+        mutableIntStateOf(0)
+    }
 
+    val posts by viewModel.posts.collectAsState()
 
+    val sortOrder by viewModel.sortOrder.collectAsState()
+
+    val sortedPosts by remember(sortOrder, posts) {
+        derivedStateOf {
+            when (sortOrder) {
+                HomeViewModel.SortOrder.POPULAR -> posts.sortedByDescending { it.totalUpvotes }
+                HomeViewModel.SortOrder.NEW -> posts.sortedByDescending { it.createdAt }
+            }
+        }
+    }
     val pagerState = rememberPagerState {
         2
     }
@@ -193,12 +207,25 @@ fun HomeScreenContent(
             CategoriesList(navigator, categories)
 
             TabRow(
-                modifier = Modifier.fillMaxWidth(),
-                selectedTabIndex = selectedTab
+                modifier = Modifier.width(200.dp),
+                selectedTabIndex = selectedTab,
+                divider = { },
+                indicator = { tabPositions ->
+                    if (selectedTab < tabPositions.size) {
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier
+                                .tabIndicatorOffset(tabPositions[selectedTab]),
+                            color = Orange,
+                        )
+                    }
+                }
             ) {
                 Tab(
                     selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
+                    onClick = {
+                        selectedTab = 0
+                        viewModel.setSortOrder(HomeViewModel.SortOrder.NEW)
+                    },
                     text = {
                         Text(
                             text = "Top",
@@ -212,7 +239,10 @@ fun HomeScreenContent(
                 )
                 Tab(
                     selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
+                    onClick = {
+                        selectedTab = 1
+                        viewModel.setSortOrder(HomeViewModel.SortOrder.POPULAR)
+                    },
                     text = {
                         Text(
                             text = "Recent",
@@ -230,12 +260,7 @@ fun HomeScreenContent(
                     .fillMaxWidth()
                     .weight(1f),
                 state = pagerState
-            ) { page ->
-                val sortedPosts = when (selectedTab) {
-                    0 -> posts.sortedByDescending { it.totalUpvotes }
-                    1 -> posts.sortedByDescending { it.createdAt }
-                    else -> posts
-                }
+            ) { index ->
 
                 PostList(posts = sortedPosts, navigator = navigator)
 
@@ -268,11 +293,11 @@ fun PostItem(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val imageUrl =
-                "https://ripplereach-0-0-1-snapshot.onrender.com${post.author.avatar}"
+//            val imageUrl =
+//                "https://ripplereach-0-0-1-snapshot.onrender.com${post.author.avatar}"
 
             AsyncImage(
-                model = imageUrl,
+                model = post.author.avatar,
                 contentDescription = post.author.username,
                 modifier = Modifier
                     .size(40.dp)
@@ -462,12 +487,12 @@ fun CommunityItem(
             }
     ) {
 
-        val imageUrl = community.imageUrl.let {
-            "https://ripplereach-0-0-1-snapshot.onrender.com$it"
-        }
+//        val imageUrl = community.imageUrl.let {
+//            "https://ripplereach-0-0-1-snapshot.onrender.com$it"
+//        }
 
         AsyncImage(
-            model = imageUrl,
+            model = community.imageUrl,
             contentDescription = community.name,
             modifier = Modifier
                 .size(52.dp)

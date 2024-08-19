@@ -2,12 +2,14 @@ package dev.prince.ripplereach.ui.create
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.prince.ripplereach.data.Community
 import dev.prince.ripplereach.data.Post
 import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
@@ -19,6 +21,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.HttpException
 import java.io.File
 import javax.inject.Inject
 
@@ -29,8 +32,13 @@ class CreatePostViewModel @Inject constructor(
 ) : ViewModel() {
 
     val authorId = prefs.response?.user?.userId
+
     private val _postState = MutableStateFlow<Post?>(null)
     val postState: StateFlow<Post?> = _postState
+
+    private val _community = MutableStateFlow<Community?>(null)
+    val community: StateFlow<Community?> = _community
+
     val messages = oneShotFlow<String>()
 
     var communityName by mutableStateOf("Select a community")
@@ -45,8 +53,10 @@ class CreatePostViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val authorIdRequest = authorId?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-                val communityIdRequest = communityId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+                val authorIdRequest =
+                    authorId?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+                val communityIdRequest =
+                    communityId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
                 val contentRequest = content.toRequestBody("text/plain".toMediaTypeOrNull())
                 val titleRequest = title.toRequestBody("text/plain".toMediaTypeOrNull())
                 val linkRequest = link.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -76,4 +86,19 @@ class CreatePostViewModel @Inject constructor(
             }
         }
     }
+
+    fun getCommunity(communityId: Long) {
+        try {
+            viewModelScope.launch {
+                val response = api.getCommunityById(communityId.toString())
+                _community.value = response
+                communityName = response.name
+            }
+        } catch (e: HttpException) {
+            Log.d("CreatePostViewModel", "Http: ${e.message}")
+        } catch (e: Exception) {
+            Log.d("CreatePostViewModel", "Exception: ${e.message}")
+        }
+    }
+
 }

@@ -189,11 +189,11 @@ fun CommentItem(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val imageUrl =
-                "https://ripplereach-0-0-1-snapshot.onrender.com${comment.author.avatar}"
+//            val imageUrl =
+//                "https://ripplereach-0-0-1-snapshot.onrender.com${comment.author.avatar}"
 
             AsyncImage(
-                model = imageUrl,
+                model = comment.author.avatar,
                 contentDescription = comment.author.username,
                 modifier = Modifier
                     .size(28.dp)

@@ -2,8 +2,10 @@ package dev.prince.ripplereach.network
 
 import dev.prince.ripplereach.data.Auth
 import dev.prince.ripplereach.data.CategoryResponse
+import dev.prince.ripplereach.data.Comment
 import dev.prince.ripplereach.data.CommentRequest
 import dev.prince.ripplereach.data.CommentResponse
+import dev.prince.ripplereach.data.Community
 import dev.prince.ripplereach.data.CommunityDetailResponse
 import dev.prince.ripplereach.data.LoginRequestBody
 import dev.prince.ripplereach.data.Post
@@ -127,5 +129,10 @@ interface ApiService {
         @Part attachments: List<MultipartBody.Part>?,
         @Part("link") link: RequestBody
     ): Post
+
+    @GET("communities/{communityId}")
+    suspend fun getCommunityById(
+        @Path("communityId") commentId: String,
+    ): Community
 
 }

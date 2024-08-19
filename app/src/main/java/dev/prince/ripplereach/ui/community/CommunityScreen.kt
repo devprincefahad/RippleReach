@@ -64,11 +64,11 @@ fun CommunityScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            val imageUrl =
-                "https://ripplereach-0-0-1-snapshot.onrender.com${commDetail?.imageUrl}"
+//            val imageUrl =
+//                "https://ripplereach-0-0-1-snapshot.onrender.com${commDetail?.imageUrl}"
 
             AsyncImage(
-                model = imageUrl,
+                model = commDetail?.imageUrl,
                 contentDescription = commDetail?.name,
                 modifier = Modifier
                     .size(52.dp)

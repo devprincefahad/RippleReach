@@ -1,16 +1,12 @@
 package dev.prince.ripplereach.ui.home
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.prince.ripplereach.data.CategoryContent
-import dev.prince.ripplereach.data.Community
 import dev.prince.ripplereach.data.Post
 import dev.prince.ripplereach.data.PostExchangeTokenRequest
-import dev.prince.ripplereach.data.User
 import dev.prince.ripplereach.local.SharedPrefHelper
 import dev.prince.ripplereach.network.ApiService
 import dev.prince.ripplereach.util.oneShotFlow
@@ -20,7 +16,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,6 +37,11 @@ class HomeViewModel @Inject constructor(
     val posts: StateFlow<List<Post>> get() = _posts
 
     val messages = oneShotFlow<String>()
+
+    private val _sortOrder = MutableStateFlow(SortOrder.NEW)
+    val sortOrder: StateFlow<SortOrder> get() = _sortOrder
+
+    private var currentSortOrder = SortOrder.NEW
 
     val userId = prefs.response?.user?.userId
 
@@ -87,10 +87,10 @@ class HomeViewModel @Inject constructor(
                         authToken = "Bearer $token",
                         limit = 20,
                         offset = 0,
-                        sortBy = "createdAt,desc"
+                        sortBy = ""
                     )
                     _posts.value = response.content
-                    Log.d("api-block",posts.value.toString())
+                    Log.d("api-block", posts.value.toString())
                 } else {
                     Log.e("api-block", "Token is null")
                 }
@@ -157,5 +157,14 @@ class HomeViewModel @Inject constructor(
             val authResponse = api.exchangeToken(request)
             prefs.response = prefs.response?.copy(auth = authResponse)
         } ?: throw IllegalStateException("Auth is null")
+    }
+
+    fun setSortOrder(sortOrder: SortOrder) {
+        _sortOrder.value = sortOrder
+    }
+
+    enum class SortOrder {
+        POPULAR,
+        NEW
     }
 }
